@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         val btnSearch = findViewById<Button>(R.id.button_search)
         val btnLib = findViewById<Button>(R.id.button_library)
-        val btnSettings = findViewById<Button>(R.id.button_setings)
+        val btnSettings = findViewById<Button>(R.id.button_settings)
 
         val imageClickListener: View.OnClickListener = object  : View.OnClickListener{
             override fun onClick(p0: View?) {
