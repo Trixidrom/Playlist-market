@@ -55,7 +55,7 @@
 
     <Button
         android:layout_width="match_parent"
-        android:id="@+id/button_setings"
+        android:id="@+id/button_settings"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:foreground="?attr/selectableItemBackground"
