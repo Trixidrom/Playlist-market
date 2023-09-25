@@ -15,14 +15,16 @@
         android:paddingVertical="10dp"
         android:text="@string/app_name"
         android:fontFamily="@font/ys_display_medium"
-        android:textColor="#ffffff"
+        android:textColor="@color/white"
         android:textSize="26sp"
         android:textStyle="bold" />
 
     <Button
         android:layout_width="match_parent"
+        android:id="@+id/button_search"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:foreground="?attr/selectableItemBackground"
         android:backgroundTint="@color/white"
         android:text="@string/search"
         android:fontFamily="@font/ys_display_medium"
@@ -38,6 +40,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:foreground="?attr/selectableItemBackground"
+        android:id="@+id/button_library"
         android:backgroundTint="@color/white"
         android:text="@string/media_library"
         android:fontFamily="@font/ys_display_medium"
@@ -51,8 +55,10 @@
 
     <Button
         android:layout_width="match_parent"
+        android:id="@+id/button_settings"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:foreground="?attr/selectableItemBackground"
         android:backgroundTint="@color/white"
         android:text="@string/settings"
         android:fontFamily="@font/ys_display_medium"
