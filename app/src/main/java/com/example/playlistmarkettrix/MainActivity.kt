@@ -1,30 +1,27 @@
 package com.example.playlistmarkettrix
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
+import com.example.playlistmarkettrix.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-    @SuppressLint("MissingInflatedId")
+
+    private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val btnSearch = findViewById<Button>(R.id.button_search)
-        val btnLib = findViewById<Button>(R.id.button_library)
-        val btnSettings = findViewById<Button>(R.id.button_settings)
-
-        btnSearch.setOnClickListener {
+        binding.buttonSearch.setOnClickListener {
             val intent = Intent(this, SearchActivity::class.java)
             startActivity(intent)
         }
-        btnLib.setOnClickListener {
+        binding.buttonLibrary.setOnClickListener {
             val intent = Intent(this, LibraryActivity::class.java)
             startActivity(intent)
         }
-        btnSettings.setOnClickListener{
+        binding.buttonSettings.setOnClickListener{
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
