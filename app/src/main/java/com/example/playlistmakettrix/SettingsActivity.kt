@@ -1,8 +1,8 @@
-package com.example.playlistmarkettrix
+package com.example.playlistmakettrix
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.playlistmarkettrix.databinding.ActivitySettingsBinding
+import com.example.playlistmakettrix.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
 

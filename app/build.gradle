@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.playlistmarkettrix'
+    namespace 'com.example.playlistmakettrix'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.playlistmarkettrix"
+        applicationId "com.example.playlistmakettrix"
         minSdk 29
         targetSdk 34
         versionCode 1

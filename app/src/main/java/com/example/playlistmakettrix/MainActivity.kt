@@ -1,9 +1,9 @@
-package com.example.playlistmarkettrix
+package com.example.playlistmakettrix
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.playlistmarkettrix.databinding.ActivityMainBinding
+import com.example.playlistmakettrix.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 

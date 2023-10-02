@@ -1,4 +1,4 @@
-package com.example.playlistmarkettrix
+package com.example.playlistmakettrix
 
 import org.junit.Test
 

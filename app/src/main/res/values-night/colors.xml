@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="main_background">@color/dark</color>
+
+    <color name="settings_button_background">@color/dark</color>
+    <color name="settings_icon_color">@color/white</color>
+</resources>

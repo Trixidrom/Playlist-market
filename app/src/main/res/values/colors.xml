@@ -2,7 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="theme_blue">#FF3772E7</color>
-    <color name="main_button_text_color">#FF1A1B22</color>
+    <color name="dark">#FF1A1B22</color>
+
+    <color name="main_background">#FF3772E7</color>
+
+    <color name="settings_button_background">@color/white</color>
     <color name="settings_icon_color">#FFAEAFB4</color>
 </resources>
