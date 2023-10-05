@@ -36,16 +36,19 @@
         tools:ignore="UseSwitchCompatOrMaterialXml" />
 
     <Button
+        android:id="@+id/shareApp"
         style="@style/settingsButtonText"
         android:text="@string/share"
         app:icon="@drawable/ic_share" />
 
     <Button
+        android:id="@+id/writeToSupport"
         style="@style/settingsButtonText"
         android:text="@string/write_to_support"
         app:icon="@drawable/ic_support" />
 
     <Button
+        android:id="@+id/termsOfUse"
         style="@style/settingsButtonText"
         android:text="@string/terms_of_use"
         app:icon="@drawable/ic_arrow_forward" />

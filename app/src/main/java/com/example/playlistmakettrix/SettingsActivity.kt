@@ -1,10 +1,18 @@
 package com.example.playlistmakettrix
 
+import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.playlistmakettrix.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
+
+    companion object{
+        private const val TERMS_OF_USE_URL = "https://yandex.ru/legal/practicum_offer/"
+        private const val YANDEX_PRACTICUM_URL = "https://practicum.yandex.ru/profile/android-developer/"
+        private const val E_MAIL = "trix2006@mail.ru"
+    }
 
     private lateinit var binding: ActivitySettingsBinding
 
@@ -15,6 +23,24 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.topAppBar.setNavigationOnClickListener{
             this.finish()
+        }
+        binding.shareApp.setOnClickListener {
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                putExtra(Intent.EXTRA_TEXT, YANDEX_PRACTICUM_URL)
+                type = "text/plain"
+            }
+            startActivity(intent)
+        }
+        binding.writeToSupport.setOnClickListener {
+            val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:" + E_MAIL)).apply {
+                putExtra(Intent.EXTRA_SUBJECT, getString(R.string.letter_subject))
+                putExtra(Intent.EXTRA_TEXT, getString(R.string.letter_body))
+            }
+            startActivity(intent)
+        }
+        binding.termsOfUse.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(TERMS_OF_USE_URL))
+            startActivity(intent)
         }
     }
 }
