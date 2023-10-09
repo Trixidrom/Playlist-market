@@ -9,6 +9,10 @@ import com.example.playlistmakettrix.databinding.ActivitySearchBinding
 
 class SearchActivity : AppCompatActivity() {
 
+    companion object {
+        private const val EDIT_TEXT_VALUE = "edit_text_value"
+    }
+
     private lateinit var binding: ActivitySearchBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +41,17 @@ class SearchActivity : AppCompatActivity() {
 
         }
         binding.searchText.addTextChangedListener(simpleTextWatcher)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(EDIT_TEXT_VALUE, binding.searchText.text.toString())
+        println(binding.searchText.text.toString())
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        binding.searchText.setText(savedInstanceState.getString(EDIT_TEXT_VALUE, ""))
     }
 
     private fun setVisibilityClearButton(){

@@ -8,7 +8,7 @@ import com.example.playlistmakettrix.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
 
-    companion object{
+    companion object {
         private const val TERMS_OF_USE_URL = "https://yandex.ru/legal/practicum_offer/"
         private const val YANDEX_PRACTICUM_URL = "https://practicum.yandex.ru/profile/android-developer/"
         private const val E_MAIL = "trix2006@mail.ru"
