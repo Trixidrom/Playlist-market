@@ -14,4 +14,5 @@
 
     <color name="searchView_background">@color/light_gray</color>
     <color name="searchView_text_color">@color/text_gray_light</color>
+    <color name="artist_name_text_color">@color/text_gray_light</color>
 </resources>

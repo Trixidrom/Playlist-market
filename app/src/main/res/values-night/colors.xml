@@ -7,4 +7,5 @@
 
     <color name="searchView_background">@color/white</color>
     <color name="searchView_text_color">@color/text_gray_dark</color>
+    <color name="artist_name_text_color">@color/white</color>
 </resources>
