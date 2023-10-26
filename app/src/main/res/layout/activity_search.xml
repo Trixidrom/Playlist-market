@@ -17,52 +17,76 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             app:navigationIcon="@drawable/ic_back"
+            app:navigationIconTint="?attr/colorOnBackground"
             app:title="@string/search"
-            app:titleTextColor="?attr/colorOnBackground"
-            app:navigationIconTint="?attr/colorOnBackground"/>
+            app:titleTextColor="?attr/colorOnBackground" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingVertical="8dp"
+        android:layout_marginBottom="16dp"
         android:paddingHorizontal="16dp"
-        android:layout_marginBottom="16dp">
+        android:paddingVertical="8dp">
 
         <EditText
             android:id="@+id/searchText"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:paddingStart="10dp"
-            android:maxLines="1"
-            android:inputType="text"
-            android:hint="@string/search"
-            android:textColorHint="@color/searchView_text_color"
+            android:background="@drawable/rounded_edittext"
+            android:backgroundTint="@color/searchView_background"
             android:drawableStart="@drawable/ic_search"
             android:drawablePadding="10dp"
-            android:background="@drawable/rounded_edittext"
-            android:backgroundTint="@color/searchView_background"/>
+            android:hint="@string/search"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingStart="10dp"
+            android:singleLine="true"
+            android:textColorHint="@color/searchView_text_color" />
 
         <ImageView
             android:id="@+id/clearButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_close"
             android:layout_gravity="right|center_vertical"
             android:layout_marginEnd="5dp"
-            app:tint="@color/searchView_text_color"
+            android:src="@drawable/ic_close"
             android:visibility="gone"
-            tools:visibility="visible"/>
+            app:tint="@color/searchView_text_color"
+            tools:visibility="visible" />
 
     </FrameLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/trackList"
-        android:paddingStart="13dp"
-        android:paddingEnd="12dp"
-        tools:listitem="@layout/search_list_item"
+
+    <ViewFlipper
+        android:id="@+id/viewflipper"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/trackList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="13dp"
+            android:paddingEnd="12dp"
+            tools:listitem="@layout/search_list_item" />
+
+        <include
+            layout="@layout/nothing_found"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="86dp" />
+
+        <include
+            android:id="@+id/included_communication_problem"
+            layout="@layout/communication_problems"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="86dp"
+            android:visibility="invisible" />
+
+    </ViewFlipper>
 
 </LinearLayout>

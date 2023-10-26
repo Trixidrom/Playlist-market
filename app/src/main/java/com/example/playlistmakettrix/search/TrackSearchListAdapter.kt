@@ -1,11 +1,15 @@
-package com.example.playlistmakettrix
+package com.example.playlistmakettrix.search
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.example.playlistmakettrix.R
 import com.example.playlistmakettrix.databinding.SearchListItemBinding
+import com.example.playlistmakettrix.search.models.Track
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class TrackSearchListAdapter (private val trackList: List<Track>) : RecyclerView.Adapter<TrackSearchListAdapter.TrackSearchListViewHolder>() {
 
@@ -27,7 +31,7 @@ class TrackSearchListAdapter (private val trackList: List<Track>) : RecyclerView
         fun bind(item : Track){
             itemBinding.trackName.text = item.trackName
             itemBinding.artistName.text = item.artistName
-            itemBinding.trackTime.text = item.trackTime
+            itemBinding.trackTime.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(item.trackTimeMillis)
 
             Glide.with(itemBinding.root)
                 .load(item.artworkUrl100)
