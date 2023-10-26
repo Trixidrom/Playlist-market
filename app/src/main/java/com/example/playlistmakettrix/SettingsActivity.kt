@@ -24,6 +24,17 @@ class SettingsActivity : AppCompatActivity() {
         binding.topAppBar.setNavigationOnClickListener{
             this.finish()
         }
+        binding.themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
+            (applicationContext as App).switchTheme(checked)
+
+            getSharedPreferences(GeneralConstants.PLAY_LIST_MAKET, MODE_PRIVATE)
+                .edit()
+                .putBoolean(GeneralConstants.MODE_DARK, checked)
+                .apply()
+        }
+
+        binding.themeSwitcher.isChecked = (applicationContext as App).darkTheme
+
         binding.shareApp.setOnClickListener {
             val intent = Intent(Intent.ACTION_SEND).apply {
                 putExtra(Intent.EXTRA_TEXT, YANDEX_PRACTICUM_URL)
