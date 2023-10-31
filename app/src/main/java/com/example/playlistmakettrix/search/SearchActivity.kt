@@ -1,5 +1,6 @@
 package com.example.playlistmakettrix.search
 
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -9,6 +10,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.playlistmakettrix.GeneralConstants
 import com.example.playlistmakettrix.R
 import com.example.playlistmakettrix.databinding.ActivitySearchBinding
 import com.example.playlistmakettrix.hideKeyboard
@@ -20,6 +22,9 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class SearchActivity : AppCompatActivity() {
+
+    private lateinit var sharPrefListener: OnSharedPreferenceChangeListener
+    private var hasFocus = false
     companion object {
         private const val EDIT_TEXT_VALUE = "edit_text_value"
         private const val TRACK_LIST = "track_list"
@@ -28,6 +33,7 @@ class SearchActivity : AppCompatActivity() {
         private const val SUCCESS = 0
         private const val NOTHING_FOUND = 1
         private const val COMMUNICATION_PROBLEM = 2
+        private const val SEARCH_HISTORY = 3
 
         private var lastFailedRequest = ""
     }
@@ -40,11 +46,23 @@ class SearchActivity : AppCompatActivity() {
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.topAppBar.setNavigationOnClickListener{
-            this.finish()
+        //SharedPreffs
+        val sharedPrefs = getSharedPreferences(GeneralConstants.PLAY_LIST_MAKET_SHARED_PREFF, MODE_PRIVATE)
+        sharPrefListener = OnSharedPreferenceChangeListener { sharedPreferences, key ->
+            if(key == GeneralConstants.HISTORY_SHAR_PREF_KEY){
+
+            }
+        }
+        sharedPrefs.registerOnSharedPreferenceChangeListener(sharPrefListener)
+
+        binding.searchText.setOnFocusChangeListener { view, hasFocus ->
+            this.hasFocus = hasFocus
+            setVisibleSearchHistory()
         }
 
-        binding.clearButton.setOnClickListener {
+        binding.topAppBar.setNavigationOnClickListener{ this.finish() }
+
+        binding.clearButtonCross.setOnClickListener {
             binding.searchText.setText("")
             trackList.clear()
             binding.trackList.adapter?.notifyDataSetChanged()
@@ -69,6 +87,7 @@ class SearchActivity : AppCompatActivity() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 setVisibilityClearButton()
+                setVisibleSearchHistory()
             }
 
             override fun afterTextChanged(p0: Editable?) {
@@ -83,15 +102,17 @@ class SearchActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(EDIT_TEXT_VALUE, binding.searchText.text.toString())
-        outState.putInt(FLIPPER_STATE, binding.viewflipper.displayedChild)
+        outState.putInt(FLIPPER_STATE, binding.viewFlipper.displayedChild)
         outState.putParcelableArrayList(TRACK_LIST, trackList)
     }
 
     @Suppress("DEPRECATION")
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
+
+        //востанавливаем текст, флиппер и список треков
         binding.searchText.setText(savedInstanceState.getString(EDIT_TEXT_VALUE, ""))
-        binding.viewflipper.displayedChild = savedInstanceState.getInt(FLIPPER_STATE)
+        binding.viewFlipper.displayedChild = savedInstanceState.getInt(FLIPPER_STATE)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             trackList.addAll(savedInstanceState.getParcelableArrayList(TRACK_LIST, Track::class.java)!!)
@@ -103,9 +124,17 @@ class SearchActivity : AppCompatActivity() {
 
     private fun setVisibilityClearButton(){
         if(binding.searchText.text.isEmpty()){
-            binding.clearButton.visibility = View.INVISIBLE
+            binding.clearButtonCross.visibility = View.INVISIBLE
         }else{
-            binding.clearButton.visibility = View.VISIBLE
+            binding.clearButtonCross.visibility = View.VISIBLE
+        }
+    }
+
+    fun setVisibleSearchHistory(){
+        if(hasFocus && binding.searchText.text.isEmpty()){
+            binding.includedSearchHistory.parentLayout.visibility = View.VISIBLE
+        }else{
+            binding.includedSearchHistory.parentLayout.visibility = View.INVISIBLE
         }
     }
 
@@ -116,13 +145,13 @@ class SearchActivity : AppCompatActivity() {
             ) {
                 when (response.code()) {
                     200 -> {
-                        binding.viewflipper.displayedChild = SUCCESS
+                        binding.viewFlipper.displayedChild = SUCCESS
                         if(response.body()?.trackList?.isNotEmpty() == true){
                             trackList.clear()
                             trackList.addAll(response.body()?.trackList!!)
                             binding.trackList.adapter?.notifyDataSetChanged()
                         }else{
-                            binding.viewflipper.displayedChild = NOTHING_FOUND
+                            binding.viewFlipper.displayedChild = NOTHING_FOUND
                         }
 
                     }
@@ -132,7 +161,7 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<TracksSearchListModel>, t: Throwable) {
-                binding.viewflipper.displayedChild = COMMUNICATION_PROBLEM
+                binding.viewFlipper.displayedChild = COMMUNICATION_PROBLEM
                 lastFailedRequest = binding.searchText.toString()
                 t.printStackTrace()
             }

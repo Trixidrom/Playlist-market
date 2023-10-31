@@ -27,12 +27,11 @@ class SettingsActivity : AppCompatActivity() {
         binding.themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
             (applicationContext as App).switchTheme(checked)
 
-            getSharedPreferences(GeneralConstants.PLAY_LIST_MAKET, MODE_PRIVATE)
+            getSharedPreferences(GeneralConstants.PLAY_LIST_MAKET_SHARED_PREFF, MODE_PRIVATE)
                 .edit()
                 .putBoolean(GeneralConstants.MODE_DARK, checked)
                 .apply()
         }
-
         binding.themeSwitcher.isChecked = (applicationContext as App).darkTheme
 
         binding.shareApp.setOnClickListener {

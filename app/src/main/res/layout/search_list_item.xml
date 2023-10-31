@@ -9,7 +9,7 @@
     android:paddingVertical="8dp">
 
     <ImageView
-        android:id="@+id/trackImage"
+        android:id="@+id/track_image"
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_marginEnd="8dp"
@@ -23,7 +23,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/trackName"
+            android:id="@+id/track_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -40,7 +40,7 @@
             android:gravity="center_vertical">
 
             <TextView
-                android:id="@+id/artistName"
+                android:id="@+id/artist_name"
                 style="@style/trackNameStyle"
                 android:layout_weight="1"
                 android:ellipsize="end"
@@ -54,7 +54,7 @@
                 android:text=" · " />
 
             <TextView
-                android:id="@+id/trackTime"
+                android:id="@+id/track_time"
                 style="@style/trackNameStyle"
                 tools:text="@tools:sample/date/hhmm" />
 

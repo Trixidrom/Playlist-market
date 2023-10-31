@@ -9,7 +9,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        val sharPref = getSharedPreferences(GeneralConstants.PLAY_LIST_MAKET, MODE_PRIVATE)
+        val sharPref = getSharedPreferences(GeneralConstants.PLAY_LIST_MAKET_SHARED_PREFF, MODE_PRIVATE)
         darkTheme = sharPref.getBoolean(GeneralConstants.MODE_DARK, false)
         switchTheme(darkTheme)
     }
