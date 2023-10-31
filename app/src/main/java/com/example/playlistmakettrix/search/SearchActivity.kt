@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.playlistmakettrix.GeneralConstants
+import com.example.playlistmakettrix.MyLinkedHashSet
 import com.example.playlistmakettrix.R
 import com.example.playlistmakettrix.databinding.ActivitySearchBinding
 import com.example.playlistmakettrix.hideKeyboard
@@ -25,6 +26,7 @@ class SearchActivity : AppCompatActivity() {
 
     private lateinit var sharPrefListener: OnSharedPreferenceChangeListener
     private var hasFocus = false
+    private val historyList: MyLinkedHashSet<Int> = MyLinkedHashSet(10)
     companion object {
         private const val EDIT_TEXT_VALUE = "edit_text_value"
         private const val TRACK_LIST = "track_list"
@@ -45,7 +47,21 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        historyList.add(0)
+        historyList.add(1)
+        historyList.add(2)
+        historyList.add(3)
+        historyList.add(4)
+        historyList.add(5)
+        historyList.add(6)
+        historyList.add(7)
+        historyList.add(8)
+        historyList.add(9)
+        historyList.add(10)
+        historyList.getList().forEach {
+            println(it)
+        }
+        println(historyList)
         //SharedPreffs
         val sharedPrefs = getSharedPreferences(GeneralConstants.PLAY_LIST_MAKET_SHARED_PREFF, MODE_PRIVATE)
         sharPrefListener = OnSharedPreferenceChangeListener { sharedPreferences, key ->
