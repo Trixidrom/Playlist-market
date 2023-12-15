@@ -11,7 +11,11 @@ import com.example.playlistmakettrix.search.models.Track
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TrackSearchListAdapter (private val trackList: List<Track>) : RecyclerView.Adapter<TrackSearchListAdapter.TrackSearchListViewHolder>() {
+class TrackSearchListAdapter (private val trackList: List<Track>, val itemOnClickListener: ItemOnClickListener = ItemOnClickListener {  }) : RecyclerView.Adapter<TrackSearchListAdapter.TrackSearchListViewHolder>() {
+
+    fun interface ItemOnClickListener{
+        fun onClick(track: Track)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackSearchListViewHolder {
         val itemBinding = SearchListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -24,6 +28,9 @@ class TrackSearchListAdapter (private val trackList: List<Track>) : RecyclerView
 
     override fun onBindViewHolder(holder: TrackSearchListViewHolder, position: Int) {
         holder.bind(trackList[position])
+        holder.itemView.setOnClickListener {
+            itemOnClickListener.onClick(trackList[position])
+        }
     }
 
     class TrackSearchListViewHolder(private val itemBinding: SearchListItemBinding) : RecyclerView.ViewHolder(itemBinding.root){

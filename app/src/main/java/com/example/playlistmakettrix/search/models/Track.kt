@@ -5,6 +5,7 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
 data class Track (
+    @SerializedName("trackId") val trackId: Long,
     @SerializedName("trackName") val trackName: String,
     @SerializedName("artistName") val artistName: String,
     @SerializedName("trackTimeMillis") val trackTimeMillis: Int,
@@ -12,6 +13,7 @@ data class Track (
 ): Parcelable {
 
     constructor(parcel: Parcel) : this(
+        parcel.readLong(),
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readInt(),
@@ -23,6 +25,7 @@ data class Track (
     }
 
     override fun writeToParcel(p0: Parcel, p1: Int) {
+        p0.writeLong(trackId)
         p0.writeString(trackName)
         p0.writeString(artistName)
         p0.writeInt(trackTimeMillis)
