@@ -3,18 +3,19 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="dark">#FF1A1B22</color>
+    <color name="dark25">#251A1B22</color>
     <color name="light_gray">#FFE6E8EB</color>
     <color name="text_gray_light">#FFAEAFB4</color>
 
     <color name="main_background">#FF3772E7</color>
 
     <color name="settings_button_background">@color/white</color>
-    <color name="settings_icon_color">#FFAEAFB4</color>
+    <color name="settings_icon_color">@color/text_gray_light</color>
 
     <color name="searchView_background">@color/light_gray</color>
     <color name="searchView_text_color">@color/text_gray_light</color>
     <color name="artist_name_text_color">@color/text_gray_light</color>
 
-    <color name="gray_dark_or_white">@color/dark</color>
+    <color name="dark_or_white">@color/dark</color>
     <color name="white_or_gray_dark">@color/white</color>
 </resources>

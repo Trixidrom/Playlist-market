@@ -8,6 +8,10 @@
 
     <dimen name="search_corner_radius">8dp</dimen>
 
+    <!-- аудиоплеер-->
+    <dimen name="margin_between_description">10dp</dimen>
+    <dimen name="circle_button_size">51dp</dimen>
+
 
 
 </resources>

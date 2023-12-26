@@ -9,6 +9,6 @@
     <color name="searchView_text_color">@color/dark</color>
     <color name="artist_name_text_color">@color/white</color>
 
-    <color name="gray_dark_or_white">@color/white</color>
+    <color name="dark_or_white">@color/white</color>
     <color name="white_or_gray_dark">@color/dark</color>
 </resources>

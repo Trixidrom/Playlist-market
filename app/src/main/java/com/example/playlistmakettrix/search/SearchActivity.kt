@@ -1,6 +1,6 @@
 package com.example.playlistmakettrix.search
 
-import android.content.SharedPreferences
+import android.content.Intent
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Build
 import android.os.Bundle
@@ -11,6 +11,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.playlistmakettrix.AudioPlayerScreenActivity
 import com.example.playlistmakettrix.GeneralConstants
 import com.example.playlistmakettrix.R
 import com.example.playlistmakettrix.databinding.ActivitySearchBinding
@@ -40,7 +41,6 @@ class SearchActivity : AppCompatActivity() {
         private const val SUCCESS = 0
         private const val NOTHING_FOUND = 1
         private const val COMMUNICATION_PROBLEM = 2
-
 
         private var lastFailedRequest = ""
     }
@@ -113,10 +113,14 @@ class SearchActivity : AppCompatActivity() {
         binding.trackList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.trackList.adapter = TrackSearchListAdapter(trackList = trackList){ track ->
             addTrackToHistoryList(track)
+            navigateToAudioPlayer(track)
         }
 
         binding.includedSearchHistory.searchHistoryList.layoutManager = LinearLayoutManager (this, LinearLayoutManager.VERTICAL, false)
-        binding.includedSearchHistory.searchHistoryList.adapter = TrackSearchListAdapter(historyList)
+        binding.includedSearchHistory.searchHistoryList.adapter = TrackSearchListAdapter(historyList){ track ->
+            navigateToAudioPlayer(track)
+        }
+
         binding.includedSearchHistory.clearSearchHistoryButton.setOnClickListener {
             clearHistoryList()
             binding.includedSearchHistory.searchHistoryList.adapter?.notifyDataSetChanged()
@@ -125,6 +129,12 @@ class SearchActivity : AppCompatActivity() {
 
         //установить фокус
         binding.searchText.requestFocus()
+    }
+
+    private fun navigateToAudioPlayer(track: Track){
+        val intent = Intent (this, AudioPlayerScreenActivity::class.java)
+        intent.putExtra(Intent.EXTRA_TEXT, Gson().toJson(track))
+        startActivity(intent)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
