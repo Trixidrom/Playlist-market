@@ -10,6 +10,7 @@ data class Track (
     @SerializedName("collectionName") val collectionName: String?,
     @SerializedName("artistName") val artistName: String,
     @SerializedName("primaryGenreName") val primaryGenreName: String,
+    @SerializedName("previewUrl") val previewUrl: String?,
     @SerializedName("country") val country: String,
     @SerializedName("releaseDate") val releaseDate: String,
     @SerializedName("trackTimeMillis") val trackTimeMillis: Int,
@@ -18,6 +19,7 @@ data class Track (
 
     constructor(parcel: Parcel) : this(
         parcel.readLong(),
+        parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readString() ?: "",
@@ -38,6 +40,7 @@ data class Track (
         p0.writeString(collectionName)
         p0.writeString(artistName)
         p0.writeString(primaryGenreName)
+        p0.writeString(previewUrl)
         p0.writeString(country)
         p0.writeString(releaseDate)
         p0.writeInt(trackTimeMillis)

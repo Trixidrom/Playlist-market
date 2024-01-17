@@ -4,6 +4,8 @@ import android.content.Intent
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -32,6 +34,11 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySearchBinding
     private lateinit var searchHistory: SearchHistory
 
+    private var isClickedAllowed = true
+    private var searchText = ""
+    private val handler = Handler(Looper.getMainLooper())
+    private val searchRunnable = Runnable { search(searchText) }
+
     companion object {
         private const val EDIT_TEXT_VALUE = "edit_text_value"
         private const val TRACK_LIST = "track_list"
@@ -41,8 +48,17 @@ class SearchActivity : AppCompatActivity() {
         private const val SUCCESS = 0
         private const val NOTHING_FOUND = 1
         private const val COMMUNICATION_PROBLEM = 2
+        private const val PROGRESS = 3
 
         private var lastFailedRequest = ""
+
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
+        private const val CLICK_DEBOUNCE_DELAY = 1000L
+    }
+
+    private fun searchDebounce(){
+        handler.removeCallbacks(searchRunnable)
+        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,10 +114,14 @@ class SearchActivity : AppCompatActivity() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 if (s?.isEmpty() == true) binding.clearButtonCross.visibility = View.INVISIBLE else binding.clearButtonCross.visibility = View.VISIBLE
+
                 if (binding.searchText.hasFocus() && s?.isEmpty() == true && historyList.isNotEmpty())
                     binding.includedSearchHistory.parentLayout.visibility = View.VISIBLE
                 else
                     binding.includedSearchHistory.parentLayout.visibility = View.GONE
+
+                searchText = s.toString()
+                searchDebounce()
             }
 
             override fun afterTextChanged(p0: Editable?) {
@@ -131,10 +151,21 @@ class SearchActivity : AppCompatActivity() {
         binding.searchText.requestFocus()
     }
 
+    private fun clickDebounce(): Boolean {
+        val current = isClickedAllowed
+        if(isClickedAllowed){
+            isClickedAllowed = false
+            handler.postDelayed({isClickedAllowed = true}, CLICK_DEBOUNCE_DELAY)
+        }
+        return current
+    }
+
     private fun navigateToAudioPlayer(track: Track){
-        val intent = Intent (this, AudioPlayerScreenActivity::class.java)
-        intent.putExtra(Intent.EXTRA_TEXT, Gson().toJson(track))
-        startActivity(intent)
+        if(clickDebounce()){
+            val intent = Intent (this, AudioPlayerScreenActivity::class.java)
+            intent.putExtra(Intent.EXTRA_TEXT, Gson().toJson(track))
+            startActivity(intent)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -182,6 +213,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun search(text: String) {
+        binding.viewFlipper.displayedChild = PROGRESS
         ApiService.musicService.searchTracks(text).enqueue(object : Callback<TracksSearchListModel> {
             override fun onResponse(
                 call: Call<TracksSearchListModel>,

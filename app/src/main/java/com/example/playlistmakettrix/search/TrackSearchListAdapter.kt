@@ -11,7 +11,7 @@ import com.example.playlistmakettrix.search.models.Track
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TrackSearchListAdapter (private val trackList: List<Track>, val itemOnClickListener: ItemOnClickListener = ItemOnClickListener {  }) : RecyclerView.Adapter<TrackSearchListAdapter.TrackSearchListViewHolder>() {
+class TrackSearchListAdapter (private val trackList: List<Track>, private val itemOnClickListener: ItemOnClickListener) : RecyclerView.Adapter<TrackSearchListAdapter.TrackSearchListViewHolder>() {
 
     fun interface ItemOnClickListener{
         fun onClick(track: Track)
