@@ -1,4 +1,4 @@
-package com.example.playlistmakettrix
+package com.example.playlistmakettrix.presentation
 
 import android.content.Intent
 import android.media.MediaPlayer
@@ -9,8 +9,9 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import com.bumptech.glide.Glide
+import com.example.playlistmakettrix.R
 import com.example.playlistmakettrix.databinding.ActivityAudioPlayerScreenBinding
-import com.example.playlistmakettrix.search.models.Track
+import com.example.playlistmakettrix.domain.models.Track
 import com.google.gson.Gson
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -106,7 +107,7 @@ class AudioPlayerScreenActivity : AppCompatActivity() {
         playerState = STATE_PAUSED
     }
 
-    private fun getTrackFromIntent(): Track{
+    private fun getTrackFromIntent(): Track {
         val intent = intent
         val json = intent.getStringExtra(Intent.EXTRA_TEXT)
         return Gson().fromJson(json, Track::class.java)
@@ -116,7 +117,7 @@ class AudioPlayerScreenActivity : AppCompatActivity() {
     private fun bindTrack(){
         binding.title.text = track.trackName
         binding.artist.text = track.artistName
-        binding.durationValue.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(track.trackTimeMillis)
+        binding.durationValue.text = track.trackTime
 
         if (track.collectionName != null) {
             binding.albumGroup.visibility = View.VISIBLE

@@ -1,11 +1,13 @@
-package com.example.playlistmakettrix.retrofit
+package com.example.playlistmakettrix.data.network
 
+import com.example.playlistmakettrix.data.dto.BaseResponse
+import com.example.playlistmakettrix.data.dto.TracksSearchRequest
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-object ApiService{
+object ApiService : NetworkClient {
     private const val BASE_URL = "https://itunes.apple.com"
 
     private val httpLoggingInterceptor = HttpLoggingInterceptor()
@@ -27,4 +29,15 @@ object ApiService{
         .build()
 
     val musicService: MusicApi = retrofit.create(MusicApi::class.java)
+
+    override fun doRequest(dto: Any): BaseResponse {
+        if (dto is TracksSearchRequest) {
+            val resp = musicService.searchTracks(dto.expression).execute()
+            val body = resp.body() ?: BaseResponse()
+
+            return body.apply { resultCode = 200 }
+        } else {
+            return BaseResponse().apply { resultCode = 400 }
+        }
+    }
 }

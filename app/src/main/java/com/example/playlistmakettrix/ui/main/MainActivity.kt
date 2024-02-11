@@ -1,10 +1,12 @@
-package com.example.playlistmakettrix
+package com.example.playlistmakettrix.ui.main
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.playlistmakettrix.ui.LibraryActivity
+import com.example.playlistmakettrix.ui.SettingsActivity
 import com.example.playlistmakettrix.databinding.ActivityMainBinding
-import com.example.playlistmakettrix.search.SearchActivity
+import com.example.playlistmakettrix.ui.searhscreen.SearchActivity
 
 class MainActivity : AppCompatActivity() {
 

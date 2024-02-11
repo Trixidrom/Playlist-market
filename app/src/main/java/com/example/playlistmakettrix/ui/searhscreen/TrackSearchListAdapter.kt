@@ -1,4 +1,4 @@
-package com.example.playlistmakettrix.search
+package com.example.playlistmakettrix.ui.searhscreen
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,7 +7,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmakettrix.R
 import com.example.playlistmakettrix.databinding.SearchListItemBinding
-import com.example.playlistmakettrix.search.models.Track
+import com.example.playlistmakettrix.domain.models.Track
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -38,7 +38,7 @@ class TrackSearchListAdapter (private val trackList: List<Track>, private val it
         fun bind(item : Track){
             itemBinding.trackName.text = item.trackName
             itemBinding.artistName.text = item.artistName
-            itemBinding.trackTime.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(item.trackTimeMillis)
+            itemBinding.trackTime.text = item.trackTime
 
             Glide.with(itemBinding.root)
                 .load(item.artworkUrl100)

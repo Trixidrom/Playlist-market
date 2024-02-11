@@ -1,4 +1,4 @@
-package com.example.playlistmakettrix.search
+package com.example.playlistmakettrix.ui.searhscreen
 
 import android.content.Intent
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
@@ -10,23 +10,20 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.playlistmakettrix.AudioPlayerScreenActivity
+import com.example.playlistmakettrix.Creator
+import com.example.playlistmakettrix.presentation.AudioPlayerScreenActivity
 import com.example.playlistmakettrix.GeneralConstants
-import com.example.playlistmakettrix.R
+import com.example.playlistmakettrix.data.dto.TracksSearchRequest
 import com.example.playlistmakettrix.databinding.ActivitySearchBinding
 import com.example.playlistmakettrix.hideKeyboard
-import com.example.playlistmakettrix.retrofit.ApiService
-import com.example.playlistmakettrix.search.models.Track
-import com.example.playlistmakettrix.search.models.TracksSearchListModel
+import com.example.playlistmakettrix.domain.models.Track
+import com.example.playlistmakettrix.data.searchhistory.SearchHistory
+import com.example.playlistmakettrix.domain.api.TracksInteractor
 import com.google.gson.Gson
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
-class SearchActivity : AppCompatActivity() {
+class SearchActivity : AppCompatActivity(), TracksInteractor.TracksConsumer {
 
     private lateinit var sharPrefListener: OnSharedPreferenceChangeListener
     private lateinit var historyList: MutableList<Track>
@@ -37,7 +34,8 @@ class SearchActivity : AppCompatActivity() {
     private var isClickedAllowed = true
     private var searchText = ""
     private val handler = Handler(Looper.getMainLooper())
-    private val searchRunnable = Runnable { search(searchText) }
+    private val searchRunnable = Runnable { search(TracksSearchRequest(searchText)) }
+    private val interactor = Creator.provideTracksInteractor()
 
     companion object {
         private const val EDIT_TEXT_VALUE = "edit_text_value"
@@ -68,11 +66,12 @@ class SearchActivity : AppCompatActivity() {
 
         //SharedPrefs
         sharPrefListener = OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            if (key == GeneralConstants.HISTORY_SHAR_PREF_KEY) {
+            if (key == SearchHistory.HISTORY_SHAR_PREF_KEY) {
                 binding.includedSearchHistory.searchHistoryList.adapter?.notifyDataSetChanged()
             }
         }
         val sharedPrefs = getSharedPreferences(GeneralConstants.PLAY_LIST_MAKET_SHARED_PREFF, MODE_PRIVATE)
+
         sharedPrefs.registerOnSharedPreferenceChangeListener(sharPrefListener)
         searchHistory = SearchHistory(sharedPrefs)
 
@@ -95,14 +94,15 @@ class SearchActivity : AppCompatActivity() {
 
         //кнопка обновить в проблемах со связью
         binding.includedCommunicationProblem.update.setOnClickListener {
-            search(lastFailedRequest)
+            search(TracksSearchRequest(lastFailedRequest))
         }
 
         //запуск поиска с клавиатуры
         binding.searchText.setOnEditorActionListener { textView, actionId, keyEvent ->
             if (binding.searchText.text.isNotEmpty()) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    search(binding.searchText.text.toString())
+                    handler.removeCallbacks(searchRunnable)
+                    search(TracksSearchRequest(binding.searchText.text.toString()))
                 }
             }
             false
@@ -212,36 +212,21 @@ class SearchActivity : AppCompatActivity() {
         searchHistory.saveHistory(historyList)
     }
 
-    private fun search(text: String) {
+    private fun search(expression: TracksSearchRequest) {
         binding.viewFlipper.displayedChild = PROGRESS
-        ApiService.musicService.searchTracks(text).enqueue(object : Callback<TracksSearchListModel> {
-            override fun onResponse(
-                call: Call<TracksSearchListModel>,
-                response: Response<TracksSearchListModel>
-            ) {
-                when (response.code()) {
-                    200 -> {
-                        binding.viewFlipper.displayedChild = SUCCESS
-                        if (response.body()?.trackList?.isNotEmpty() == true) {
-                            trackList.clear()
-                            trackList.addAll(response.body()?.trackList!!)
-                            binding.trackList.adapter?.notifyDataSetChanged()
-                        } else {
-                            binding.viewFlipper.displayedChild = NOTHING_FOUND
-                        }
+        interactor.searchTracks(expression = expression.expression, consumer = this)
+    }
 
-                    }
-
-                    else -> Toast.makeText(this@SearchActivity, getString(R.string.unknown_error), Toast.LENGTH_SHORT).show()
-                }
-
+    override fun consume(foundTracks: List<Track>) {
+        handler.post{
+            if (foundTracks.isNotEmpty()) {
+                binding.viewFlipper.displayedChild = SUCCESS
+                trackList.clear()
+                trackList.addAll(foundTracks)
+                binding.trackList.adapter?.notifyDataSetChanged()
+            } else {
+                binding.viewFlipper.displayedChild = NOTHING_FOUND
             }
-
-            override fun onFailure(call: Call<TracksSearchListModel>, t: Throwable) {
-                binding.viewFlipper.displayedChild = COMMUNICATION_PROBLEM
-                lastFailedRequest = binding.searchText.toString()
-                t.printStackTrace()
-            }
-        })
+        }
     }
 }

@@ -1,20 +1,20 @@
-package com.example.playlistmakettrix.search.models
+package com.example.playlistmakettrix.domain.models
 
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
 data class Track (
-    @SerializedName("trackId") val trackId: Long,
-    @SerializedName("trackName") val trackName: String,
-    @SerializedName("collectionName") val collectionName: String?,
-    @SerializedName("artistName") val artistName: String,
-    @SerializedName("primaryGenreName") val primaryGenreName: String,
-    @SerializedName("previewUrl") val previewUrl: String?,
-    @SerializedName("country") val country: String,
-    @SerializedName("releaseDate") val releaseDate: String,
-    @SerializedName("trackTimeMillis") val trackTimeMillis: Int,
-    @SerializedName("artworkUrl100") val artworkUrl100: String
+    val trackId: Long,
+    val trackName: String,
+    val collectionName: String?,
+    val artistName: String,
+    val primaryGenreName: String,
+    val previewUrl: String?,
+    val country: String,
+    val releaseDate: String,
+    val trackTime: String,
+    val artworkUrl100: String
 ): Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -26,7 +26,7 @@ data class Track (
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readString() ?: "",
-        parcel.readInt(),
+        parcel.readString() ?: "",
         parcel.readString() ?: ""
     )
 
@@ -43,7 +43,7 @@ data class Track (
         p0.writeString(previewUrl)
         p0.writeString(country)
         p0.writeString(releaseDate)
-        p0.writeInt(trackTimeMillis)
+        p0.writeString(trackTime)
         p0.writeString(artworkUrl100)
     }
 

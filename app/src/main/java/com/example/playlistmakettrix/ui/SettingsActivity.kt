@@ -1,9 +1,12 @@
-package com.example.playlistmakettrix
+package com.example.playlistmakettrix.ui
 
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.playlistmakettrix.App
+import com.example.playlistmakettrix.GeneralConstants
+import com.example.playlistmakettrix.R
 import com.example.playlistmakettrix.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
