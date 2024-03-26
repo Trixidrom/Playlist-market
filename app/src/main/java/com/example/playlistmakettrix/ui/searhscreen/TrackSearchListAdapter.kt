@@ -7,11 +7,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmakettrix.R
 import com.example.playlistmakettrix.databinding.SearchListItemBinding
-import com.example.playlistmakettrix.domain.models.Track
+import com.example.playlistmakettrix.domain.search.models.Track
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TrackSearchListAdapter (private val trackList: List<Track>, private val itemOnClickListener: ItemOnClickListener) : RecyclerView.Adapter<TrackSearchListAdapter.TrackSearchListViewHolder>() {
+class TrackSearchListAdapter (var trackList: List<Track>, private val itemOnClickListener: ItemOnClickListener) : RecyclerView.Adapter<TrackSearchListAdapter.TrackSearchListViewHolder>() {
 
     fun interface ItemOnClickListener{
         fun onClick(track: Track)

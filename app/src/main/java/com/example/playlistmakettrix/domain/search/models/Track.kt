@@ -1,4 +1,4 @@
-package com.example.playlistmakettrix.domain.models
+package com.example.playlistmakettrix.domain.search.models
 
 import android.os.Parcel
 import android.os.Parcelable

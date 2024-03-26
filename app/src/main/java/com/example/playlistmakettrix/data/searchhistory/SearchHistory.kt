@@ -1,7 +1,7 @@
 package com.example.playlistmakettrix.data.searchhistory
 
 import android.content.SharedPreferences
-import com.example.playlistmakettrix.domain.models.Track
+import com.example.playlistmakettrix.domain.search.models.Track
 import com.google.gson.Gson
 
 class SearchHistory (private val searchHistorySharedPref: SharedPreferences) {

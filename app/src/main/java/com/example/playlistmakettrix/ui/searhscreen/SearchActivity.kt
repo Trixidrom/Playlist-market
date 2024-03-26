@@ -4,38 +4,35 @@ import android.content.Intent
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.playlistmakettrix.Creator
-import com.example.playlistmakettrix.presentation.AudioPlayerScreenActivity
+import com.example.playlistmakettrix.ui.player.AudioPlayerScreenActivity
 import com.example.playlistmakettrix.GeneralConstants
 import com.example.playlistmakettrix.data.dto.TracksSearchRequest
 import com.example.playlistmakettrix.databinding.ActivitySearchBinding
-import com.example.playlistmakettrix.hideKeyboard
-import com.example.playlistmakettrix.domain.models.Track
+import com.example.playlistmakettrix.domain.search.models.Track
 import com.example.playlistmakettrix.data.searchhistory.SearchHistory
-import com.example.playlistmakettrix.domain.api.TracksInteractor
+import com.example.playlistmakettrix.hideKeyboard
 import com.google.gson.Gson
 
-class SearchActivity : AppCompatActivity(), TracksInteractor.TracksConsumer {
+class SearchActivity : ComponentActivity() {
 
     private lateinit var sharPrefListener: OnSharedPreferenceChangeListener
     private lateinit var historyList: MutableList<Track>
     private var trackList = arrayListOf<Track>()
     private lateinit var binding: ActivitySearchBinding
     private lateinit var searchHistory: SearchHistory
+    private lateinit var viewModel: SearchViewModel
 
-    private var isClickedAllowed = true
     private var searchText = ""
-    private val handler = Handler(Looper.getMainLooper())
-    private val searchRunnable = Runnable { search(TracksSearchRequest(searchText)) }
-    private val interactor = Creator.provideTracksInteractor()
+
+    private var lastFailedRequest = ""
+
 
     companion object {
         private const val EDIT_TEXT_VALUE = "edit_text_value"
@@ -48,16 +45,10 @@ class SearchActivity : AppCompatActivity(), TracksInteractor.TracksConsumer {
         private const val COMMUNICATION_PROBLEM = 2
         private const val PROGRESS = 3
 
-        private var lastFailedRequest = ""
 
-        private const val SEARCH_DEBOUNCE_DELAY = 2000L
-        private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 
-    private fun searchDebounce(){
-        handler.removeCallbacks(searchRunnable)
-        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
-    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,12 +68,34 @@ class SearchActivity : AppCompatActivity(), TracksInteractor.TracksConsumer {
 
         historyList = searchHistory.getHistory().toMutableList()
 
+        viewModel = ViewModelProvider(this, SearchViewModel.getViewModelFactory())[SearchViewModel::class.java]
+        viewModel.observeState().observe(this){loadingState ->
+            when(loadingState) {
+                is TrackState.Loading -> {
+                    binding.viewFlipper.displayedChild = PROGRESS
+                }
+                is TrackState.Error -> {
+                    binding.viewFlipper.displayedChild = COMMUNICATION_PROBLEM
+                }
+                is TrackState.Content -> {
+
+                        if (loadingState.trackModel.isNotEmpty()) {
+                            binding.viewFlipper.displayedChild = SearchActivity.SUCCESS
+                            trackList.clear()
+                            trackList.addAll(loadingState.trackModel)
+                            binding.trackList.adapter?.notifyDataSetChanged()
+                        } else {
+                            binding.viewFlipper.displayedChild = SearchActivity.NOTHING_FOUND
+                        }
+                }
+            }
+        }
         binding.searchText.setOnFocusChangeListener { view, hasFocus ->
             if (hasFocus && historyList.isNotEmpty()) binding.includedSearchHistory.parentLayout.visibility = View.VISIBLE
             else binding.includedSearchHistory.parentLayout.visibility = View.GONE
         }
 
-        binding.topAppBar.setNavigationOnClickListener { this.finish() }
+        binding.topAppBar.setNavigationOnClickListener { finish() }
 
         binding.clearButtonCross.setOnClickListener {
             binding.searchText.setText("")
@@ -90,50 +103,6 @@ class SearchActivity : AppCompatActivity(), TracksInteractor.TracksConsumer {
             binding.trackList.adapter?.notifyDataSetChanged()
             hideKeyboard()
             binding.clearButtonCross.visibility = View.INVISIBLE
-        }
-
-        //кнопка обновить в проблемах со связью
-        binding.includedCommunicationProblem.update.setOnClickListener {
-            search(TracksSearchRequest(lastFailedRequest))
-        }
-
-        //запуск поиска с клавиатуры
-        binding.searchText.setOnEditorActionListener { textView, actionId, keyEvent ->
-            if (binding.searchText.text.isNotEmpty()) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    handler.removeCallbacks(searchRunnable)
-                    search(TracksSearchRequest(binding.searchText.text.toString()))
-                }
-            }
-            false
-        }
-
-        val simpleTextWatcher = object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (s?.isEmpty() == true) binding.clearButtonCross.visibility = View.INVISIBLE else binding.clearButtonCross.visibility = View.VISIBLE
-
-                if (binding.searchText.hasFocus() && s?.isEmpty() == true && historyList.isNotEmpty())
-                    binding.includedSearchHistory.parentLayout.visibility = View.VISIBLE
-                else
-                    binding.includedSearchHistory.parentLayout.visibility = View.GONE
-
-                searchText = s.toString()
-                searchDebounce()
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-            }
-
-        }
-
-        binding.searchText.addTextChangedListener(simpleTextWatcher)
-        binding.trackList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        binding.trackList.adapter = TrackSearchListAdapter(trackList = trackList){ track ->
-            addTrackToHistoryList(track)
-            navigateToAudioPlayer(track)
         }
 
         binding.includedSearchHistory.searchHistoryList.layoutManager = LinearLayoutManager (this, LinearLayoutManager.VERTICAL, false)
@@ -149,19 +118,63 @@ class SearchActivity : AppCompatActivity(), TracksInteractor.TracksConsumer {
 
         //установить фокус
         binding.searchText.requestFocus()
-    }
 
-    private fun clickDebounce(): Boolean {
-        val current = isClickedAllowed
-        if(isClickedAllowed){
-            isClickedAllowed = false
-            handler.postDelayed({isClickedAllowed = true}, CLICK_DEBOUNCE_DELAY)
+
+        //кнопка обновить в проблемах со связью
+        binding.includedCommunicationProblem.update.setOnClickListener {
+            search(TracksSearchRequest(lastFailedRequest))
         }
-        return current
+
+        //запуск поиска с клавиатуры
+        binding.searchText.setOnEditorActionListener { textView, actionId, keyEvent ->
+            if (binding.searchText.text.isNotEmpty()) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    search(TracksSearchRequest(binding.searchText.text.toString()))
+                }
+            }
+            false
+        }
+
+        binding.clearButtonCross.setOnClickListener {
+            binding.searchText.setText("")
+            trackList.clear()
+            binding.trackList.adapter?.notifyDataSetChanged()
+            hideKeyboard()
+            binding.clearButtonCross.visibility = View.INVISIBLE
+        }
+
+        val simpleTextWatcher = object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (s?.isEmpty() == true) binding.clearButtonCross.visibility = View.INVISIBLE else binding.clearButtonCross.visibility = View.VISIBLE
+
+                if (binding.searchText.hasFocus() && s?.isEmpty() == true && historyList.isNotEmpty())
+                    binding.includedSearchHistory.parentLayout.visibility = View.VISIBLE
+                else
+                    binding.includedSearchHistory.parentLayout.visibility = View.GONE
+
+                searchText = s.toString()
+                viewModel.searchDebounce(searchText)
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+            }
+
+        }
+
+        binding.searchText.addTextChangedListener(simpleTextWatcher)
+
+        binding.trackList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        binding.trackList.adapter = TrackSearchListAdapter (trackList = trackList){ track ->
+            addTrackToHistoryList(track)
+            navigateToAudioPlayer(track)
+        }
     }
 
     private fun navigateToAudioPlayer(track: Track){
-        if(clickDebounce()){
+        if(viewModel.clickDebounce()){
             val intent = Intent (this, AudioPlayerScreenActivity::class.java)
             intent.putExtra(Intent.EXTRA_TEXT, Gson().toJson(track))
             startActivity(intent)
@@ -213,20 +226,7 @@ class SearchActivity : AppCompatActivity(), TracksInteractor.TracksConsumer {
     }
 
     private fun search(expression: TracksSearchRequest) {
-        binding.viewFlipper.displayedChild = PROGRESS
-        interactor.searchTracks(expression = expression.expression, consumer = this)
-    }
-
-    override fun consume(foundTracks: List<Track>) {
-        handler.post{
-            if (foundTracks.isNotEmpty()) {
-                binding.viewFlipper.displayedChild = SUCCESS
-                trackList.clear()
-                trackList.addAll(foundTracks)
-                binding.trackList.adapter?.notifyDataSetChanged()
-            } else {
-                binding.viewFlipper.displayedChild = NOTHING_FOUND
-            }
-        }
+        binding.includedSearchHistory.parentLayout.visibility = View.GONE
+        viewModel.search(expression.expression)
     }
 }

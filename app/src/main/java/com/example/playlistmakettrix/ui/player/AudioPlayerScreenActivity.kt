@@ -1,4 +1,4 @@
-package com.example.playlistmakettrix.presentation
+package com.example.playlistmakettrix.ui.player
 
 import android.content.Intent
 import android.media.MediaPlayer
@@ -8,10 +8,11 @@ import android.os.Looper
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.playlistmakettrix.R
 import com.example.playlistmakettrix.databinding.ActivityAudioPlayerScreenBinding
-import com.example.playlistmakettrix.domain.models.Track
+import com.example.playlistmakettrix.domain.search.models.Track
 import com.google.gson.Gson
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -20,6 +21,7 @@ class AudioPlayerScreenActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAudioPlayerScreenBinding
     private lateinit var track: Track
+    private lateinit var viewModel: TrackViewModel
     private var playerState = STATE_DEFAULT
     private var mediaPlayer = MediaPlayer()
     private var mainThreadHandler: Handler? = null
@@ -32,11 +34,14 @@ class AudioPlayerScreenActivity : AppCompatActivity() {
         private const val STATE_PAUSED = 3
         private const val UPDATE_TIMER_DELAY = 500L
     }
-
+    private fun changeProgressBarVisibility(visible: Boolean) {
+        // Обновляем видимость прогресс-бара
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAudioPlayerScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
 
         mainThreadHandler = Handler(Looper.getMainLooper())
         updateTimeRunnable = object : Runnable {
@@ -49,6 +54,12 @@ class AudioPlayerScreenActivity : AppCompatActivity() {
         }
 
         track = getTrackFromIntent()
+        viewModel = ViewModelProvider(this, TrackViewModel.getViewModelFactory(track.trackId))[TrackViewModel::class.java]
+        viewModel.getLoadingLiveData().observe(this) {isLoading ->
+            changeProgressBarVisibility(isLoading)
+        }
+
+
         bindTrack()
         preparePlayer(track.previewUrl)
         binding.arrowButton.setOnClickListener {
@@ -74,6 +85,7 @@ class AudioPlayerScreenActivity : AppCompatActivity() {
         mediaPlayer.release() //освобождение ресурсов
     }
 
+    //подготовить плеер
     private fun preparePlayer(previewUrl: String?) {
         mediaPlayer.setDataSource(previewUrl)
 
@@ -136,5 +148,4 @@ class AudioPlayerScreenActivity : AppCompatActivity() {
             .centerCrop()
             .into(binding.cover)
     }
-
 }

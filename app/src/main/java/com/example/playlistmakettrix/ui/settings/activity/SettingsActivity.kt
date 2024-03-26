@@ -1,28 +1,27 @@
-package com.example.playlistmakettrix.ui
+package com.example.playlistmakettrix.ui.settings.activity
 
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.lifecycle.ViewModelProvider
 import com.example.playlistmakettrix.App
 import com.example.playlistmakettrix.GeneralConstants
 import com.example.playlistmakettrix.R
 import com.example.playlistmakettrix.databinding.ActivitySettingsBinding
+import com.example.playlistmakettrix.ui.searhscreen.SearchViewModel
+import com.example.playlistmakettrix.ui.settings.view_model.SettingsViewModel
 
 class SettingsActivity : AppCompatActivity() {
 
-    companion object {
-        private const val TERMS_OF_USE_URL = "https://yandex.ru/legal/practicum_offer/"
-        private const val YANDEX_PRACTICUM_URL = "https://practicum.yandex.ru/profile/android-developer/"
-        private const val E_MAIL = "trix2006@mail.ru"
-    }
-
     private lateinit var binding: ActivitySettingsBinding
+    private lateinit var settingsViewModel: SettingsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        settingsViewModel = ViewModelProvider(this, SettingsViewModel.getViewModelFactory())[SettingsViewModel::class.java]
 
         binding.topAppBar.setNavigationOnClickListener{
             this.finish()
@@ -38,22 +37,13 @@ class SettingsActivity : AppCompatActivity() {
         binding.themeSwitcher.isChecked = (applicationContext as App).darkTheme
 
         binding.shareApp.setOnClickListener {
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                putExtra(Intent.EXTRA_TEXT, YANDEX_PRACTICUM_URL)
-                type = "text/plain"
-            }
-            startActivity(intent)
+            settingsViewModel.shareApp()
         }
         binding.writeToSupport.setOnClickListener {
-            val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:" + E_MAIL)).apply {
-                putExtra(Intent.EXTRA_SUBJECT, getString(R.string.letter_subject))
-                putExtra(Intent.EXTRA_TEXT, getString(R.string.letter_body))
-            }
-            startActivity(intent)
+            settingsViewModel.openSupport()
         }
         binding.termsOfUse.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(TERMS_OF_USE_URL))
-            startActivity(intent)
+            settingsViewModel.openTerms()
         }
     }
 }
