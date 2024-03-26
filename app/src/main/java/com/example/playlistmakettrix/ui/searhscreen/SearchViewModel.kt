@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.playlistmakettrix.creator.Creator
+import com.example.playlistmakettrix.data.searchhistory.impl.SearchHistoryRepositoryImpl
 import com.example.playlistmakettrix.domain.search.SearchInteractor
 import com.example.playlistmakettrix.domain.search.models.Track
 
@@ -19,8 +20,9 @@ class SearchViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    val tracksInteractor = Creator.provideSearchInteractor(getApplication())
-
+    private val tracksInteractor = Creator.provideSearchInteractor(getApplication())
+    private val searchHistoryInteractor = Creator.provideSearchHistoryInteractor(getApplication())
+    var historyList: MutableList<Track>
 
     private var loadingLiveData = MutableLiveData<TrackState>()
     fun observeState(): LiveData<TrackState> = loadingLiveData
@@ -28,9 +30,41 @@ class SearchViewModel(
     private var latestSearchText: String? = null
     private var isClickedAllowed = true
     private val handler = Handler(Looper.getMainLooper())
+
+    init {
+        historyList = getSearchHistory()
+    }
+
+    fun getSearchHistory(): MutableList<Track> {
+        return searchHistoryInteractor.getHistory()
+    }
+
+    fun clearSearchHistory() {
+        searchHistoryInteractor.clearHistory()
+    }
+
+    private fun saveHistoryList(historyList: MutableList<Track>) {
+        searchHistoryInteractor.saveHistory(historyList)
+    }
+
+    fun addTrackToHistoryList(track: Track) {
+        if (historyList.contains(track)) {
+            historyList.remove(track)
+            historyList.add(0, track)
+        } else {
+            historyList.add(0, track)
+        }
+
+        if (historyList.size == SearchHistoryRepositoryImpl.SEARCH_HISTORY_SIZE + 1) {
+            historyList.removeAt(SearchHistoryRepositoryImpl.SEARCH_HISTORY_SIZE)
+        }
+
+        saveHistoryList(historyList)
+    }
+
     fun search(expression: String) {
         if (expression.isNotEmpty()) {
-            renderState(TrackState.Loading)
+            loadingLiveData.value = TrackState.Loading
 
             handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
             tracksInteractor.searchTracks(
@@ -38,9 +72,9 @@ class SearchViewModel(
                 consumer = object : SearchInteractor.TracksConsumer {
                     override fun consume(foundTracks: List<Track>?, errorMessage: String?) {
                         if (foundTracks != null) {
-                            renderState(TrackState.Content(foundTracks))
+                            loadingLiveData.value = TrackState.Content(foundTracks)
                         } else {
-                            renderState(TrackState.Error)
+                            loadingLiveData.value = TrackState.Error
                         }
                     }
                 }
@@ -48,18 +82,17 @@ class SearchViewModel(
         }
     }
 
-     fun renderState(state: TrackState) {
-        loadingLiveData.postValue(state)
-    }
+
     fun clickDebounce(): Boolean {
         val current = isClickedAllowed
-        if(isClickedAllowed){
+        if (isClickedAllowed) {
             isClickedAllowed = false
-            handler.postDelayed({isClickedAllowed = true}, CLICK_DEBOUNCE_DELAY)
+            handler.postDelayed({ isClickedAllowed = true }, CLICK_DEBOUNCE_DELAY)
         }
         return current
     }
-    fun searchDebounce(changedText: String){
+
+    fun searchDebounce(changedText: String) {
         if (latestSearchText == changedText) return
 
         this.latestSearchText = changedText
@@ -80,9 +113,9 @@ class SearchViewModel(
 
     companion object {
         private val SEARCH_REQUEST_TOKEN = Any()
-
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private const val CLICK_DEBOUNCE_DELAY = 1000L
+
         fun getViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 SearchViewModel(this[APPLICATION_KEY] as Application)

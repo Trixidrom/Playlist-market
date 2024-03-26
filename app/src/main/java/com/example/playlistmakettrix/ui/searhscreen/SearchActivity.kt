@@ -16,17 +16,15 @@ import com.example.playlistmakettrix.GeneralConstants
 import com.example.playlistmakettrix.data.dto.TracksSearchRequest
 import com.example.playlistmakettrix.databinding.ActivitySearchBinding
 import com.example.playlistmakettrix.domain.search.models.Track
-import com.example.playlistmakettrix.data.searchhistory.SearchHistory
+import com.example.playlistmakettrix.data.searchhistory.impl.SearchHistoryRepositoryImpl
 import com.example.playlistmakettrix.hideKeyboard
 import com.google.gson.Gson
 
 class SearchActivity : ComponentActivity() {
 
     private lateinit var sharPrefListener: OnSharedPreferenceChangeListener
-    private lateinit var historyList: MutableList<Track>
     private var trackList = arrayListOf<Track>()
     private lateinit var binding: ActivitySearchBinding
-    private lateinit var searchHistory: SearchHistory
     private lateinit var viewModel: SearchViewModel
 
     private var searchText = ""
@@ -38,14 +36,11 @@ class SearchActivity : ComponentActivity() {
         private const val EDIT_TEXT_VALUE = "edit_text_value"
         private const val TRACK_LIST = "track_list"
         private const val FLIPPER_STATE = "flipper_state"
-        private const val SEARCH_HISTORY_SIZE = 10
 
         private const val SUCCESS = 0
         private const val NOTHING_FOUND = 1
         private const val COMMUNICATION_PROBLEM = 2
         private const val PROGRESS = 3
-
-
     }
 
 
@@ -55,20 +50,18 @@ class SearchActivity : ComponentActivity() {
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        viewModel = ViewModelProvider(this, SearchViewModel.getViewModelFactory())[SearchViewModel::class.java]
+
         //SharedPrefs
         sharPrefListener = OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            if (key == SearchHistory.HISTORY_SHAR_PREF_KEY) {
+            if (key == SearchHistoryRepositoryImpl.HISTORY_SHAR_PREF_KEY) {
                 binding.includedSearchHistory.searchHistoryList.adapter?.notifyDataSetChanged()
             }
         }
         val sharedPrefs = getSharedPreferences(GeneralConstants.PLAY_LIST_MAKET_SHARED_PREFF, MODE_PRIVATE)
 
         sharedPrefs.registerOnSharedPreferenceChangeListener(sharPrefListener)
-        searchHistory = SearchHistory(sharedPrefs)
 
-        historyList = searchHistory.getHistory().toMutableList()
-
-        viewModel = ViewModelProvider(this, SearchViewModel.getViewModelFactory())[SearchViewModel::class.java]
         viewModel.observeState().observe(this){loadingState ->
             when(loadingState) {
                 is TrackState.Loading -> {
@@ -91,7 +84,7 @@ class SearchActivity : ComponentActivity() {
             }
         }
         binding.searchText.setOnFocusChangeListener { view, hasFocus ->
-            if (hasFocus && historyList.isNotEmpty()) binding.includedSearchHistory.parentLayout.visibility = View.VISIBLE
+            if (hasFocus && viewModel.historyList.isNotEmpty()) binding.includedSearchHistory.parentLayout.visibility = View.VISIBLE
             else binding.includedSearchHistory.parentLayout.visibility = View.GONE
         }
 
@@ -106,7 +99,7 @@ class SearchActivity : ComponentActivity() {
         }
 
         binding.includedSearchHistory.searchHistoryList.layoutManager = LinearLayoutManager (this, LinearLayoutManager.VERTICAL, false)
-        binding.includedSearchHistory.searchHistoryList.adapter = TrackSearchListAdapter(historyList){ track ->
+        binding.includedSearchHistory.searchHistoryList.adapter = TrackSearchListAdapter(viewModel.historyList){ track ->
             navigateToAudioPlayer(track)
         }
 
@@ -150,7 +143,7 @@ class SearchActivity : ComponentActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 if (s?.isEmpty() == true) binding.clearButtonCross.visibility = View.INVISIBLE else binding.clearButtonCross.visibility = View.VISIBLE
 
-                if (binding.searchText.hasFocus() && s?.isEmpty() == true && historyList.isNotEmpty())
+                if (binding.searchText.hasFocus() && s?.isEmpty() == true && viewModel.historyList.isNotEmpty())
                     binding.includedSearchHistory.parentLayout.visibility = View.VISIBLE
                 else
                     binding.includedSearchHistory.parentLayout.visibility = View.GONE
@@ -168,7 +161,8 @@ class SearchActivity : ComponentActivity() {
 
         binding.trackList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.trackList.adapter = TrackSearchListAdapter (trackList = trackList){ track ->
-            addTrackToHistoryList(track)
+            viewModel.addTrackToHistoryList(track)
+            //binding.includedSearchHistory.searchHistoryList.adapter?.notifyDataSetChanged()
             navigateToAudioPlayer(track)
         }
     }
@@ -205,24 +199,8 @@ class SearchActivity : ComponentActivity() {
     }
 
     private fun clearHistoryList(){
-        historyList.clear()
-        searchHistory.clearHistory()
-    }
-
-    private fun addTrackToHistoryList(track: Track) {
-
-        if (historyList.contains(track)) {
-            historyList.remove(track)
-            historyList.add(0, track)
-        } else {
-            historyList.add(0, track)
-        }
-
-        if (historyList.size == SEARCH_HISTORY_SIZE + 1) {
-            historyList.removeAt(SEARCH_HISTORY_SIZE)
-        }
-
-        searchHistory.saveHistory(historyList)
+        viewModel.historyList.clear()
+        viewModel.clearSearchHistory()
     }
 
     private fun search(expression: TracksSearchRequest) {

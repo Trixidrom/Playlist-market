@@ -36,6 +36,7 @@ class AudioPlayerScreenActivity : AppCompatActivity() {
     }
     private fun changeProgressBarVisibility(visible: Boolean) {
         // Обновляем видимость прогресс-бара
+        //TODO тут что то должно быть
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
