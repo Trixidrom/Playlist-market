@@ -1,4 +1,4 @@
-package com.example.playlistmakettrix.ui.searhscreen
+package com.example.playlistmakettrix.ui.searhscreen.activity
 
 import android.content.Intent
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
@@ -9,7 +9,6 @@ import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.activity.ComponentActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.playlistmakettrix.ui.player.AudioPlayerScreenActivity
 import com.example.playlistmakettrix.GeneralConstants
@@ -18,14 +17,18 @@ import com.example.playlistmakettrix.databinding.ActivitySearchBinding
 import com.example.playlistmakettrix.domain.search.models.Track
 import com.example.playlistmakettrix.data.searchhistory.impl.SearchHistoryRepositoryImpl
 import com.example.playlistmakettrix.hideKeyboard
+import com.example.playlistmakettrix.ui.searhscreen.view_model.SearchViewModel
+import com.example.playlistmakettrix.ui.searhscreen.TrackSearchListAdapter
+import com.example.playlistmakettrix.ui.searhscreen.TrackState
 import com.google.gson.Gson
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SearchActivity : ComponentActivity() {
 
     private lateinit var sharPrefListener: OnSharedPreferenceChangeListener
     private var trackList = arrayListOf<Track>()
     private lateinit var binding: ActivitySearchBinding
-    private lateinit var viewModel: SearchViewModel
+    private val viewModel by viewModel<SearchViewModel>()
 
     private var searchText = ""
 
@@ -50,8 +53,6 @@ class SearchActivity : ComponentActivity() {
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this, SearchViewModel.getViewModelFactory())[SearchViewModel::class.java]
-
         //SharedPrefs
         sharPrefListener = OnSharedPreferenceChangeListener { sharedPreferences, key ->
             if (key == SearchHistoryRepositoryImpl.HISTORY_SHAR_PREF_KEY) {
@@ -73,12 +74,12 @@ class SearchActivity : ComponentActivity() {
                 is TrackState.Content -> {
 
                         if (loadingState.trackModel.isNotEmpty()) {
-                            binding.viewFlipper.displayedChild = SearchActivity.SUCCESS
+                            binding.viewFlipper.displayedChild = SUCCESS
                             trackList.clear()
                             trackList.addAll(loadingState.trackModel)
                             binding.trackList.adapter?.notifyDataSetChanged()
                         } else {
-                            binding.viewFlipper.displayedChild = SearchActivity.NOTHING_FOUND
+                            binding.viewFlipper.displayedChild = NOTHING_FOUND
                         }
                 }
             }

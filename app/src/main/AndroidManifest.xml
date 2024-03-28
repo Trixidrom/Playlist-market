@@ -17,7 +17,7 @@
         android:theme="@style/Theme.PlaylistMaketTrix"
         tools:targetApi="31">
         <activity
-            android:name=".ui.searhscreen.SearchActivity"
+            android:name=".ui.searhscreen.activity.SearchActivity"
             android:exported="false" />
         <activity
             android:name=".ui.LibraryActivity"

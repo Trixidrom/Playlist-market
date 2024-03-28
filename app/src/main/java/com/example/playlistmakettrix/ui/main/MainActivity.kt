@@ -6,7 +6,7 @@ import android.os.Bundle
 import com.example.playlistmakettrix.ui.LibraryActivity
 import com.example.playlistmakettrix.ui.settings.activity.SettingsActivity
 import com.example.playlistmakettrix.databinding.ActivityMainBinding
-import com.example.playlistmakettrix.ui.searhscreen.SearchActivity
+import com.example.playlistmakettrix.ui.searhscreen.activity.SearchActivity
 
 class MainActivity : AppCompatActivity() {
 

@@ -1,4 +1,4 @@
-package com.example.playlistmakettrix.ui.searhscreen
+package com.example.playlistmakettrix.ui.searhscreen.view_model
 
 import android.app.Application
 import android.os.Handler
@@ -7,21 +7,18 @@ import android.os.SystemClock
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.playlistmakettrix.creator.Creator
 import com.example.playlistmakettrix.data.searchhistory.impl.SearchHistoryRepositoryImpl
 import com.example.playlistmakettrix.domain.search.SearchInteractor
 import com.example.playlistmakettrix.domain.search.models.Track
+import com.example.playlistmakettrix.domain.searchhistory.SearchHistoryInteractor
+import com.example.playlistmakettrix.ui.searhscreen.TrackState
 
 class SearchViewModel(
-    application: Application
+    application: Application,
+    private val searchInteractor: SearchInteractor,
+    private val searchHistoryInteractor: SearchHistoryInteractor
 ) : AndroidViewModel(application) {
 
-    private val tracksInteractor = Creator.provideSearchInteractor(getApplication())
-    private val searchHistoryInteractor = Creator.provideSearchHistoryInteractor(getApplication())
     var historyList: MutableList<Track>
 
     private var loadingLiveData = MutableLiveData<TrackState>()
@@ -35,7 +32,7 @@ class SearchViewModel(
         historyList = getSearchHistory()
     }
 
-    fun getSearchHistory(): MutableList<Track> {
+    private fun getSearchHistory(): MutableList<Track> {
         return searchHistoryInteractor.getHistory()
     }
 
@@ -64,17 +61,17 @@ class SearchViewModel(
 
     fun search(expression: String) {
         if (expression.isNotEmpty()) {
-            loadingLiveData.value = TrackState.Loading
+            loadingLiveData.postValue(TrackState.Loading)
 
             handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
-            tracksInteractor.searchTracks(
+            searchInteractor.searchTracks(
                 expression = expression,
                 consumer = object : SearchInteractor.TracksConsumer {
                     override fun consume(foundTracks: List<Track>?, errorMessage: String?) {
                         if (foundTracks != null) {
-                            loadingLiveData.value = TrackState.Content(foundTracks)
+                            loadingLiveData.postValue(TrackState.Content(foundTracks))
                         } else {
-                            loadingLiveData.value = TrackState.Error
+                            loadingLiveData.postValue(TrackState.Error)
                         }
                     }
                 }
@@ -107,6 +104,7 @@ class SearchViewModel(
         )
     }
 
+    //очистка handler от задач
     override fun onCleared() {
         handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
     }
@@ -115,11 +113,5 @@ class SearchViewModel(
         private val SEARCH_REQUEST_TOKEN = Any()
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private const val CLICK_DEBOUNCE_DELAY = 1000L
-
-        fun getViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                SearchViewModel(this[APPLICATION_KEY] as Application)
-            }
-        }
     }
 }

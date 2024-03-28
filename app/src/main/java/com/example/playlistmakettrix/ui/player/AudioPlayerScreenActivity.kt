@@ -8,12 +8,12 @@ import android.os.Looper
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.playlistmakettrix.R
 import com.example.playlistmakettrix.databinding.ActivityAudioPlayerScreenBinding
 import com.example.playlistmakettrix.domain.search.models.Track
 import com.google.gson.Gson
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -21,7 +21,7 @@ class AudioPlayerScreenActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAudioPlayerScreenBinding
     private lateinit var track: Track
-    private lateinit var viewModel: TrackViewModel
+    private val viewModel by viewModel<TrackViewModel>()
     private var playerState = STATE_DEFAULT
     private var mediaPlayer = MediaPlayer()
     private var mainThreadHandler: Handler? = null
@@ -37,6 +37,7 @@ class AudioPlayerScreenActivity : AppCompatActivity() {
     private fun changeProgressBarVisibility(visible: Boolean) {
         // Обновляем видимость прогресс-бара
         //TODO тут что то должно быть
+        println(visible)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +56,6 @@ class AudioPlayerScreenActivity : AppCompatActivity() {
         }
 
         track = getTrackFromIntent()
-        viewModel = ViewModelProvider(this, TrackViewModel.getViewModelFactory(track.trackId))[TrackViewModel::class.java]
         viewModel.getLoadingLiveData().observe(this) {isLoading ->
             changeProgressBarVisibility(isLoading)
         }
@@ -97,7 +97,7 @@ class AudioPlayerScreenActivity : AppCompatActivity() {
             playerState = STATE_PREPARED
         }
         mediaPlayer.setOnCompletionListener {
-//            метод отслеживания завершения воспроизведения. После того как аудио закончило воспроизводиться, часто требуется произвести
+//            Метод отслеживания завершения воспроизведения. После того как аудио закончило воспроизводиться, часто требуется произвести
 //            какие-то изменения на экране: например, сбросить таймер или изменить состояние кнопки. Чтобы иметь возможность отловить
 //            этот момент, медиаплееру нужно установить
             binding.playButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.play_button_ready))
