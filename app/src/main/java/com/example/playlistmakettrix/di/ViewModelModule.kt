@@ -1,5 +1,7 @@
 package com.example.playlistmakettrix.di
 
+import com.example.playlistmakettrix.ui.library.viewmodels.FavoritesViewModel
+import com.example.playlistmakettrix.ui.library.viewmodels.PlaylistsViewModel
 import com.example.playlistmakettrix.ui.player.TrackViewModel
 import com.example.playlistmakettrix.ui.searhscreen.view_model.SearchViewModel
 import com.example.playlistmakettrix.ui.settings.view_model.SettingsViewModel
@@ -19,6 +21,14 @@ val viewModelModule = module {
         SettingsViewModel(
             sharingInteractor = get()
         )
+    }
+
+    viewModel<FavoritesViewModel> {
+        FavoritesViewModel()
+    }
+
+    viewModel<PlaylistsViewModel> {
+        PlaylistsViewModel()
     }
 
     viewModel<TrackViewModel> { (trackId: Long) ->

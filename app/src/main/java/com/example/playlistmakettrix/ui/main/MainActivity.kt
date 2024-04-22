@@ -3,7 +3,7 @@ package com.example.playlistmakettrix.ui.main
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.playlistmakettrix.ui.LibraryActivity
+import com.example.playlistmakettrix.ui.library.LibraryActivity
 import com.example.playlistmakettrix.ui.settings.activity.SettingsActivity
 import com.example.playlistmakettrix.databinding.ActivityMainBinding
 import com.example.playlistmakettrix.ui.searhscreen.activity.SearchActivity

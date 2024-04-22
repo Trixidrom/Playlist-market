@@ -5,10 +5,12 @@
     <string name="communication_problems">Проблемы со связью</string>
     <string name="dark_theme">Темная тема</string>
     <string name="download_failed">Проблемы со связью \n\n Загрузка не удалась. Проверьте подключение к интернету</string>
+    <string name="favorites_tracks">Избранные треки</string>
     <string name="letter_subject">Сообщение разработчикам и разработчицам приложения Playlist Maker</string>
     <string name="letter_body">Спасибо разработчикам и разработчицам за крутое приложение!</string>
     <string name="media_library">Медиатека</string>
-    <string name="nothing_found">Ничего не нашлось</string>
+    <string name="new_playlist">Новый плейлист</string>
+    <string name="playlists">Плейлисты</string>
     <string name="search">Поиск</string>
     <string name="settings">Настройки</string>
     <string name="share">Поделиться приложением</string>
@@ -25,4 +27,11 @@
     <string name="track_genre">Жанр</string>
     <string name="track_country">Страна</string>
     <string name="timer_start_position">00:00</string>
+
+    <!--Заглушки для пустого контента-->
+    <string name="nothing_found">Ничего не нашлось</string>
+    <string name="have_not_created_any_playlists">Вы не создали ни одного плейлиста</string>
+    <string name="media_library_is_empty">Ваша медиатека пуста</string>
+
+
 </resources>

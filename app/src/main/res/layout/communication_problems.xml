@@ -28,10 +28,7 @@
         android:id="@+id/update"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/dark_or_white"
-        android:text="@string/update"
-        android:textColor="@color/white_or_gray_dark"
-        android:textAllCaps="false"
-        app:cornerRadius="20dp"/>
+        style="@style/black_or_white_button"
+        android:text="@string/update"/>
 
 </LinearLayout>
