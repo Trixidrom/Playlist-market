@@ -15,31 +15,35 @@ class SearchRepositoryImpl(private val networkClient: NetworkClient) : SearchRep
 
         return when (response.resultCode) {
             200 -> {
-                Resource.Success(
-                    (response as TracksSearchResponse).trackList.map { trackDto ->
-                        Track(
-                            trackId = trackDto.trackId,
-                            trackName = trackDto.trackName,
-                            collectionName = trackDto.collectionName,
-                            artistName = trackDto.artistName,
-                            primaryGenreName = trackDto.primaryGenreName,
-                            previewUrl = trackDto.previewUrl,
-                            country = trackDto.country,
-                            releaseDate = trackDto.releaseDate,
-                            trackTime = SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackDto.trackTimeMillis),
-                            artworkUrl100 = trackDto.artworkUrl100,
-                        )
-                    }
-                )
+                try {
+                    Resource.Success(
+                        (response as TracksSearchResponse).trackList.map { trackDto ->
+                            Track(
+                                trackId = trackDto.trackId,
+                                trackName = trackDto.trackName,
+                                collectionName = trackDto.collectionName,
+                                artistName = trackDto.artistName,
+                                primaryGenreName = trackDto.primaryGenreName,
+                                previewUrl = trackDto.previewUrl,
+                                country = trackDto.country,
+                                releaseDate = trackDto.releaseDate,
+                                trackTime = SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackDto.trackTimeMillis),
+                                artworkUrl100 = trackDto.artworkUrl100,
+                            )
+                        }
+                    )
+                } catch (e: Exception) {
+                    Resource.Error("Ошибка сервера", errorCode = 0)
+                }
             }
             400 -> {
                 Resource.Success(emptyList())
             }
             -1 -> {
-                Resource.Error("Проверьте подключение к интернету")
+                Resource.Error("Проверьте подключение к интернету", errorCode = -1)
             }
             else -> {
-                Resource.Error("Ошибка сервера")
+                Resource.Error("Ошибка сервера", errorCode = 0)
             }
         }
     }

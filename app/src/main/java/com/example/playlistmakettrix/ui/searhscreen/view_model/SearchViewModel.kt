@@ -67,11 +67,11 @@ class SearchViewModel(
             searchInteractor.searchTracks(
                 expression = expression,
                 consumer = object : SearchInteractor.TracksConsumer {
-                    override fun consume(foundTracks: List<Track>?, errorMessage: String?) {
-                        if (foundTracks != null) {
-                            loadingLiveData.postValue(TrackState.Content(foundTracks))
+                    override fun consume(foundTracks: List<Track>?, errorMessage: String?, errorCode: Int?) {
+                        if (errorCode == 200) {
+                            loadingLiveData.postValue(TrackState.Content(foundTracks!!))
                         } else {
-                            loadingLiveData.postValue(TrackState.Error)
+                            loadingLiveData.postValue(TrackState.Error(errorCode = errorCode!!, errorMessage = errorMessage!!))
                         }
                     }
                 }

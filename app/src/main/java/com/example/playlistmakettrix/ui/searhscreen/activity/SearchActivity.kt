@@ -8,6 +8,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.playlistmakettrix.ui.player.AudioPlayerScreenActivity
@@ -69,7 +70,13 @@ class SearchActivity : ComponentActivity() {
                     binding.viewFlipper.displayedChild = PROGRESS
                 }
                 is TrackState.Error -> {
-                    binding.viewFlipper.displayedChild = COMMUNICATION_PROBLEM
+                    if (loadingState.errorCode == -1) {
+                        binding.viewFlipper.displayedChild = COMMUNICATION_PROBLEM
+                        lastFailedRequest = searchText
+                    } else {
+                        Toast.makeText(this, loadingState.errorMessage, Toast.LENGTH_LONG).show()
+                    }
+
                 }
                 is TrackState.Content -> {
 

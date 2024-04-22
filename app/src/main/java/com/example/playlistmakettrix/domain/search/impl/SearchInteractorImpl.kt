@@ -12,8 +12,8 @@ class SearchInteractorImpl (private val repository: SearchRepository) : SearchIn
     override fun searchTracks ( expression: String, consumer: SearchInteractor.TracksConsumer) {
         executor.execute {
             when (val resource = repository.searchTracks(expression)){
-                is Resource.Success -> { consumer.consume(resource.data, null)}
-                is Resource.Error -> {consumer.consume(null, resource.message)}
+                is Resource.Success -> { consumer.consume(resource.data, null, errorCode = 200) }
+                is Resource.Error -> {consumer.consume(null, resource.message, errorCode = resource.errorCode)}
             }
         }
     }
