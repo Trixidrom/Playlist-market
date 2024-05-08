@@ -1,4 +1,4 @@
-package com.example.playlistmakettrix.data.searchhistory
+package com.example.playlistmakettrix.domain.searchhistory
 
 import com.example.playlistmakettrix.domain.search.models.Track
 

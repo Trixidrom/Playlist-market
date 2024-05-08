@@ -1,4 +1,4 @@
-package com.example.playlistmakettrix.data.sharing
+package com.example.playlistmakettrix.domain.sharing
 
 import com.example.playlistmakettrix.domain.sharing.model.EmailData
 

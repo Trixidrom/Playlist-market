@@ -19,7 +19,8 @@ val viewModelModule = module {
 
     viewModel<SettingsViewModel> {
         SettingsViewModel(
-            sharingInteractor = get()
+            sharingInteractor = get(),
+            switchThemeInteractor = get()
         )
     }
 
@@ -31,7 +32,7 @@ val viewModelModule = module {
         PlaylistsViewModel()
     }
 
-    viewModel<TrackViewModel> { (trackId: Long) ->
-        TrackViewModel(trackId)
+    viewModel<TrackViewModel> {
+        TrackViewModel()
     }
 }

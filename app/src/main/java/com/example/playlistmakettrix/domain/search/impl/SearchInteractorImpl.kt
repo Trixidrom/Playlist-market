@@ -1,7 +1,7 @@
 package com.example.playlistmakettrix.domain.search.impl
 
 import com.example.playlistmakettrix.domain.search.SearchInteractor
-import com.example.playlistmakettrix.data.search.SearchRepository
+import com.example.playlistmakettrix.domain.search.SearchRepository
 import com.example.playlistmakettrix.util.Resource
 import java.util.concurrent.Executors
 

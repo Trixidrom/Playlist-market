@@ -1,6 +1,6 @@
 package com.example.playlistmakettrix.domain.sharing.impl
 
-import com.example.playlistmakettrix.data.sharing.ExternalNavigator
+import com.example.playlistmakettrix.domain.sharing.ExternalNavigator
 import com.example.playlistmakettrix.domain.sharing.model.EmailData
 import com.example.playlistmakettrix.domain.sharing.SharingInteractor
 

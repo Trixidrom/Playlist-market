@@ -3,7 +3,7 @@ package com.example.playlistmakettrix.data.search.impl
 import com.example.playlistmakettrix.data.dto.TracksSearchRequest
 import com.example.playlistmakettrix.data.dto.TracksSearchResponse
 import com.example.playlistmakettrix.data.network.NetworkClient
-import com.example.playlistmakettrix.data.search.SearchRepository
+import com.example.playlistmakettrix.domain.search.SearchRepository
 import com.example.playlistmakettrix.domain.search.models.Track
 import com.example.playlistmakettrix.util.Resource
 import java.text.SimpleDateFormat

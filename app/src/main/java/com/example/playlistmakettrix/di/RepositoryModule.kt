@@ -1,12 +1,11 @@
 package com.example.playlistmakettrix.di
 
-import com.example.playlistmakettrix.data.search.SearchRepository
+import com.example.playlistmakettrix.domain.search.SearchRepository
 import com.example.playlistmakettrix.data.search.impl.SearchRepositoryImpl
-import com.example.playlistmakettrix.data.searchhistory.SearchHistoryRepository
+import com.example.playlistmakettrix.domain.searchhistory.SearchHistoryRepository
 import com.example.playlistmakettrix.data.searchhistory.impl.SearchHistoryRepositoryImpl
-import com.example.playlistmakettrix.data.settings.SettingsRepository
-import com.example.playlistmakettrix.data.settings.impl.SettingsRepositoryImpl
-import com.example.playlistmakettrix.domain.search.impl.SearchInteractorImpl
+import com.example.playlistmakettrix.data.settings.impl.ThemeSwitchRepositoryImpl
+import com.example.playlistmakettrix.domain.settings.ThemeSwitchRepository
 import org.koin.dsl.module
 
 val repositoryModule = module {
@@ -16,10 +15,14 @@ val repositoryModule = module {
     }
 
     single <SearchHistoryRepository> {
-        SearchHistoryRepositoryImpl(application = get())
+        SearchHistoryRepositoryImpl(
+            searchHistorySharedPref = get()
+        )
     }
 
-//    single <SettingsRepository> {
-//        SettingsRepositoryImpl()
-//    }
+    single <ThemeSwitchRepository> {
+        ThemeSwitchRepositoryImpl(
+            themeStorage = get()
+        )
+    }
 }

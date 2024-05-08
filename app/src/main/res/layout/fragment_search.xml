@@ -6,23 +6,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:elevation="0dp">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/top_app_bar"
-            style="@style/Widget.MaterialComponents.Toolbar.Surface"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            app:navigationIcon="@drawable/ic_back"
-            app:navigationIconTint="?attr/colorOnBackground"
-            app:title="@string/search"
-            app:titleTextColor="?attr/colorOnBackground" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -42,20 +25,22 @@
             android:imeOptions="actionDone"
             android:inputType="text"
             android:maxLines="1"
-            android:paddingStart="10dp"
+            android:paddingHorizontal="10dp"
             android:singleLine="true"
-            android:textColorHint="@color/searchView_text_color" />
+            android:textColorHint="@color/searchView_text_color"
+            android:autofillHints="searchContent" />
 
         <ImageView
             android:id="@+id/clear_button_cross"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right|center_vertical"
+            android:layout_gravity="end|center_vertical"
             android:layout_marginEnd="5dp"
             android:src="@drawable/ic_close"
             android:visibility="gone"
             app:tint="@color/searchView_text_color"
-            tools:visibility="visible" />
+            tools:visibility="visible"
+            android:contentDescription="@string/clear" />
 
     </FrameLayout>
 

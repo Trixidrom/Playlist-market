@@ -1,6 +1,6 @@
 package com.example.playlistmakettrix.domain.searchhistory.impl
 
-import com.example.playlistmakettrix.data.searchhistory.SearchHistoryRepository
+import com.example.playlistmakettrix.domain.searchhistory.SearchHistoryRepository
 import com.example.playlistmakettrix.domain.search.models.Track
 import com.example.playlistmakettrix.domain.searchhistory.SearchHistoryInteractor
 

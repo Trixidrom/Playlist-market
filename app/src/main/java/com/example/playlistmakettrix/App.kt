@@ -6,6 +6,8 @@ import com.example.playlistmakettrix.di.dataModule
 import com.example.playlistmakettrix.di.interactorModule
 import com.example.playlistmakettrix.di.repositoryModule
 import com.example.playlistmakettrix.di.viewModelModule
+import com.example.playlistmakettrix.domain.settings.ThemeSwitchInteractor
+import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -13,7 +15,6 @@ import org.koin.core.logger.Level
 
 class App : Application() {
 
-    var darkTheme = false
     override fun onCreate() {
         super.onCreate()
 
@@ -23,19 +24,10 @@ class App : Application() {
             modules(repositoryModule, interactorModule, dataModule, viewModelModule)
         }
 
-        val sharPref = getSharedPreferences(GeneralConstants.PLAY_LIST_MAKET_SHARED_PREFF, MODE_PRIVATE)
-        darkTheme = sharPref.getBoolean(GeneralConstants.MODE_DARK, false)
-        switchTheme(darkTheme)
+        val themeSwitcherInteractor: ThemeSwitchInteractor by inject()
+        themeSwitcherInteractor.applyCurrentTheme()
+
     }
 
-    fun switchTheme(darkThemeEnabled: Boolean) {
-        darkTheme = darkThemeEnabled
-        AppCompatDelegate.setDefaultNightMode(
-            if (darkThemeEnabled) {
-                AppCompatDelegate.MODE_NIGHT_YES
-            } else {
-                AppCompatDelegate.MODE_NIGHT_NO
-            }
-        )
-    }
+
 }

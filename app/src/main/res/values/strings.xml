@@ -32,6 +32,7 @@
     <string name="nothing_found">Ничего не нашлось</string>
     <string name="have_not_created_any_playlists">Вы не создали ни одного плейлиста</string>
     <string name="media_library_is_empty">Ваша медиатека пуста</string>
+    <string name="clear">clear</string>
 
 
 </resources>

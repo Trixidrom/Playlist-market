@@ -1,40 +1,39 @@
-package com.example.playlistmakettrix.ui.searhscreen.activity
+package com.example.playlistmakettrix.ui.searhscreen
 
 import android.content.Intent
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
-import android.os.Build
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.playlistmakettrix.ui.player.AudioPlayerScreenActivity
 import com.example.playlistmakettrix.GeneralConstants
 import com.example.playlistmakettrix.data.dto.TracksSearchRequest
-import com.example.playlistmakettrix.databinding.ActivitySearchBinding
-import com.example.playlistmakettrix.domain.search.models.Track
 import com.example.playlistmakettrix.data.searchhistory.impl.SearchHistoryRepositoryImpl
+import com.example.playlistmakettrix.databinding.FragmentSearchBinding
+import com.example.playlistmakettrix.domain.search.models.Track
 import com.example.playlistmakettrix.hideKeyboard
+import com.example.playlistmakettrix.ui.player.AudioPlayerScreenActivity
 import com.example.playlistmakettrix.ui.searhscreen.view_model.SearchViewModel
-import com.example.playlistmakettrix.ui.searhscreen.TrackSearchListAdapter
-import com.example.playlistmakettrix.ui.searhscreen.TrackState
 import com.google.gson.Gson
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 
-class SearchActivity : ComponentActivity() {
-
+class SearchFragment : Fragment(){
     private lateinit var sharPrefListener: OnSharedPreferenceChangeListener
     private var trackList = arrayListOf<Track>()
-    private lateinit var binding: ActivitySearchBinding
+    private lateinit var binding: FragmentSearchBinding
     private val viewModel by viewModel<SearchViewModel>()
 
     private var searchText = ""
 
     private var lastFailedRequest = ""
-
 
     companion object {
         private const val EDIT_TEXT_VALUE = "edit_text_value"
@@ -47,24 +46,25 @@ class SearchActivity : ComponentActivity() {
         private const val PROGRESS = 3
     }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentSearchBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivitySearchBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         //SharedPrefs
         sharPrefListener = OnSharedPreferenceChangeListener { sharedPreferences, key ->
             if (key == SearchHistoryRepositoryImpl.HISTORY_SHAR_PREF_KEY) {
                 binding.includedSearchHistory.searchHistoryList.adapter?.notifyDataSetChanged()
             }
         }
-        val sharedPrefs = getSharedPreferences(GeneralConstants.PLAY_LIST_MAKET_SHARED_PREFF, MODE_PRIVATE)
+        val sharedPrefs = requireContext().getSharedPreferences(GeneralConstants.PLAY_LIST_MAKET_SHARED_PREFF, ComponentActivity.MODE_PRIVATE)
 
         sharedPrefs.registerOnSharedPreferenceChangeListener(sharPrefListener)
 
-        viewModel.observeState().observe(this){loadingState ->
+
+        viewModel.observeState().observe(viewLifecycleOwner){loadingState ->
             when(loadingState) {
                 is TrackState.Loading -> {
                     binding.viewFlipper.displayedChild = PROGRESS
@@ -74,29 +74,27 @@ class SearchActivity : ComponentActivity() {
                         binding.viewFlipper.displayedChild = COMMUNICATION_PROBLEM
                         lastFailedRequest = searchText
                     } else {
-                        Toast.makeText(this, loadingState.errorMessage, Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), loadingState.errorMessage, Toast.LENGTH_LONG).show()
                     }
 
                 }
                 is TrackState.Content -> {
 
-                        if (loadingState.trackModel.isNotEmpty()) {
-                            binding.viewFlipper.displayedChild = SUCCESS
-                            trackList.clear()
-                            trackList.addAll(loadingState.trackModel)
-                            binding.trackList.adapter?.notifyDataSetChanged()
-                        } else {
-                            binding.viewFlipper.displayedChild = NOTHING_FOUND
-                        }
+                    if (loadingState.trackModel.isNotEmpty()) {
+                        binding.viewFlipper.displayedChild = SUCCESS
+                        trackList.clear()
+                        trackList.addAll(loadingState.trackModel)
+                        binding.trackList.adapter?.notifyDataSetChanged()
+                    } else {
+                        binding.viewFlipper.displayedChild = NOTHING_FOUND
+                    }
                 }
             }
         }
-        binding.searchText.setOnFocusChangeListener { view, hasFocus ->
+        binding.searchText.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus && viewModel.historyList.isNotEmpty()) binding.includedSearchHistory.parentLayout.visibility = View.VISIBLE
             else binding.includedSearchHistory.parentLayout.visibility = View.GONE
         }
-
-        binding.topAppBar.setNavigationOnClickListener { finish() }
 
         binding.clearButtonCross.setOnClickListener {
             binding.searchText.setText("")
@@ -106,7 +104,7 @@ class SearchActivity : ComponentActivity() {
             binding.clearButtonCross.visibility = View.INVISIBLE
         }
 
-        binding.includedSearchHistory.searchHistoryList.layoutManager = LinearLayoutManager (this, LinearLayoutManager.VERTICAL, false)
+        binding.includedSearchHistory.searchHistoryList.layoutManager = LinearLayoutManager (requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.includedSearchHistory.searchHistoryList.adapter = TrackSearchListAdapter(viewModel.historyList){ track ->
             navigateToAudioPlayer(track)
         }
@@ -167,7 +165,7 @@ class SearchActivity : ComponentActivity() {
 
         binding.searchText.addTextChangedListener(simpleTextWatcher)
 
-        binding.trackList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        binding.trackList.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.trackList.adapter = TrackSearchListAdapter (trackList = trackList){ track ->
             viewModel.addTrackToHistoryList(track)
             //binding.includedSearchHistory.searchHistoryList.adapter?.notifyDataSetChanged()
@@ -175,9 +173,9 @@ class SearchActivity : ComponentActivity() {
         }
     }
 
-    private fun navigateToAudioPlayer(track: Track){
-        if(viewModel.clickDebounce()){
-            val intent = Intent (this, AudioPlayerScreenActivity::class.java)
+    private fun navigateToAudioPlayer(track: Track) {
+        if (viewModel.clickDebounce()) {
+            val intent = Intent(activity, AudioPlayerScreenActivity::class.java)
             intent.putExtra(Intent.EXTRA_TEXT, Gson().toJson(track))
             startActivity(intent)
         }
@@ -190,21 +188,22 @@ class SearchActivity : ComponentActivity() {
         outState.putParcelableArrayList(TRACK_LIST, trackList)
     }
 
-    @Suppress("DEPRECATION")
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-
-        //востанавливаем текст, флиппер и список треков
-        binding.searchText.setText(savedInstanceState.getString(EDIT_TEXT_VALUE, ""))
-        binding.viewFlipper.displayedChild = savedInstanceState.getInt(FLIPPER_STATE)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            trackList.addAll(savedInstanceState.getParcelableArrayList(TRACK_LIST, Track::class.java)!!)
-        } else {
-            trackList.addAll(savedInstanceState.getParcelableArrayList(TRACK_LIST)!!)
-        }
-        binding.trackList.adapter?.notifyDataSetChanged()
-    }
+    //TODO закомментил этот код, когда переносил на фрагменты
+//    @Suppress("DEPRECATION")
+//    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+//        super.onRestoreInstanceState(savedInstanceState)
+//
+//        //востанавливаем текст, флиппер и список треков
+//        binding.searchText.setText(savedInstanceState.getString(EDIT_TEXT_VALUE, ""))
+//        binding.viewFlipper.displayedChild = savedInstanceState.getInt(FLIPPER_STATE)
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//            trackList.addAll(savedInstanceState.getParcelableArrayList(TRACK_LIST, Track::class.java)!!)
+//        } else {
+//            trackList.addAll(savedInstanceState.getParcelableArrayList(TRACK_LIST)!!)
+//        }
+//        binding.trackList.adapter?.notifyDataSetChanged()
+//    }
 
     private fun clearHistoryList(){
         viewModel.historyList.clear()

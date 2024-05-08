@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_navigation_graph"
+    app:startDestination="@id/libraryFragment">
+
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.playlistmakettrix.ui.searhscreen.SearchFragment"
+        android:label="SearchFragment" />
+
+    <fragment
+        android:id="@+id/libraryFragment"
+        android:name="com.example.playlistmakettrix.ui.library.LibraryFragment"
+        android:label="LibraryFragment" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.playlistmakettrix.ui.settings.SettingsFragment"
+        android:label="SettingsFragment" />
+
+</navigation>

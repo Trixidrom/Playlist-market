@@ -17,20 +17,14 @@
         android:theme="@style/Theme.PlaylistMaketTrix"
         tools:targetApi="31">
         <activity
-            android:name=".ui.searhscreen.activity.SearchActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.library.LibraryActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.settings.activity.SettingsActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.player.AudioPlayerScreenActivity"
             android:exported="false" />
+
+        <!--        android:windowSoftInputMode="adjustNothing" скрывает панель навигации за клавиатурой-->
         <activity
             android:name=".ui.main.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustNothing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

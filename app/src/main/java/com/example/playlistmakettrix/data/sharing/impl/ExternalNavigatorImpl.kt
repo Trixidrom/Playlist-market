@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.example.playlistmakettrix.R
-import com.example.playlistmakettrix.data.sharing.ExternalNavigator
+import com.example.playlistmakettrix.domain.sharing.ExternalNavigator
 import com.example.playlistmakettrix.domain.sharing.model.EmailData
 
 class ExternalNavigatorImpl(private val context: Context) : ExternalNavigator {
