@@ -77,7 +77,7 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="play"
         android:src="@drawable/play_button_not_ready"
-        app:layout_constraintBottom_toTopOf="@id/play_back_time"
+        app:layout_constraintBottom_toTopOf="@id/timer_text_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -104,7 +104,7 @@
         android:contentDescription="favorite"/>
 
     <TextView
-        android:id="@+id/play_back_time"
+        android:id="@+id/timer_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="15dp"

@@ -5,6 +5,8 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.example.playlistmakettrix.data.dto.BaseResponse
 import com.example.playlistmakettrix.data.dto.TracksSearchRequest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 
 class NetworkClientImpl(private val context: Context, retrofit: Retrofit) : NetworkClient {
@@ -15,25 +17,31 @@ class NetworkClientImpl(private val context: Context, retrofit: Retrofit) : Netw
 
     private val musicService: MusicApi = retrofit.create(MusicApi::class.java)
 
-    override fun doRequest(dto: Any): BaseResponse {
+    override suspend fun doRequest(dto: Any): BaseResponse {
         if (!isConnected(context)) {
-            val response = BaseResponse()
-            response.resultCode = -1
-            return response
+            return BaseResponse().apply { resultCode = -1 }
         }
 
-        return if (dto is TracksSearchRequest) {
-            val resp = musicService.searchTracks(dto.expression).execute()
-            val body = resp.body() ?: BaseResponse()
+        if (dto !is TracksSearchRequest) {
+            return BaseResponse().apply { resultCode = 400 }
+        }
 
-            body.apply { resultCode = 200 }
-        } else {
-            BaseResponse().apply { resultCode = 400 }
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = musicService.searchTracks(dto.expression)
+                response.apply { resultCode = 200 }
+            } catch (e: Exception) {
+                BaseResponse().apply {
+                    resultCode = 500
+                }
+            }
         }
     }
+
     private fun isConnected(context: Context): Boolean {
         val connectivityManager = context.getSystemService(
-            Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            Context.CONNECTIVITY_SERVICE
+        ) as ConnectivityManager
         val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         if (capabilities != null) {
             when {

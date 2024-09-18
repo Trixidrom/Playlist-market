@@ -1,7 +1,6 @@
 package com.example.playlistmakettrix.ui.searhscreen
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -24,13 +23,16 @@ import com.example.playlistmakettrix.ui.searhscreen.view_model.SearchViewModel
 import com.google.gson.Gson
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class SearchFragment : Fragment(){
     private lateinit var sharPrefListener: OnSharedPreferenceChangeListener
     private var trackList = arrayListOf<Track>()
     private lateinit var binding: FragmentSearchBinding
     private val viewModel by viewModel<SearchViewModel>()
-
+    private var isClickAllowed  = true
     private var searchText = ""
 
     private var lastFailedRequest = ""
@@ -44,6 +46,8 @@ class SearchFragment : Fragment(){
         private const val NOTHING_FOUND = 1
         private const val COMMUNICATION_PROBLEM = 2
         private const val PROGRESS = 3
+
+        private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -174,7 +178,7 @@ class SearchFragment : Fragment(){
     }
 
     private fun navigateToAudioPlayer(track: Track) {
-        if (viewModel.clickDebounce()) {
+        if (clickDebounce()) {
             val intent = Intent(activity, AudioPlayerScreenActivity::class.java)
             intent.putExtra(Intent.EXTRA_TEXT, Gson().toJson(track))
             startActivity(intent)
@@ -213,5 +217,17 @@ class SearchFragment : Fragment(){
     private fun search(expression: TracksSearchRequest) {
         binding.includedSearchHistory.parentLayout.visibility = View.GONE
         viewModel.search(expression.expression)
+    }
+
+    private fun clickDebounce(): Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed ) {
+            isClickAllowed  = false
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(CLICK_DEBOUNCE_DELAY)
+                isClickAllowed  = true
+            }
+        }
+        return current
     }
 }

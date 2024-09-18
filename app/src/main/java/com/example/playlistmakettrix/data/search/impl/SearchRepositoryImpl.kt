@@ -6,17 +6,19 @@ import com.example.playlistmakettrix.data.network.NetworkClient
 import com.example.playlistmakettrix.domain.search.SearchRepository
 import com.example.playlistmakettrix.domain.search.models.Track
 import com.example.playlistmakettrix.util.Resource
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class SearchRepositoryImpl(private val networkClient: NetworkClient) : SearchRepository {
-    override fun searchTracks(expression: String): Resource<List<Track>> {
-        val response = networkClient.doRequest(TracksSearchRequest(expression = expression))
+    override fun searchTracks(expression: String): Flow<Resource<List<Track>>> {
+        return flow {
+            val response = networkClient.doRequest(TracksSearchRequest(expression = expression))
 
-        return when (response.resultCode) {
-            200 -> {
-                try {
-                    Resource.Success(
+            when (response.resultCode) {
+                200 -> {
+                    emit(Resource.Success(
                         (response as TracksSearchResponse).trackList.map { trackDto ->
                             Track(
                                 trackId = trackDto.trackId,
@@ -31,19 +33,20 @@ class SearchRepositoryImpl(private val networkClient: NetworkClient) : SearchRep
                                 artworkUrl100 = trackDto.artworkUrl100,
                             )
                         }
-                    )
-                } catch (e: Exception) {
-                    Resource.Error("Ошибка сервера", errorCode = 0)
+                    ))
                 }
-            }
-            400 -> {
-                Resource.Success(emptyList())
-            }
-            -1 -> {
-                Resource.Error("Проверьте подключение к интернету", errorCode = -1)
-            }
-            else -> {
-                Resource.Error("Ошибка сервера", errorCode = 0)
+
+                400 -> {
+                    emit(Resource.Success(emptyList()))
+                }
+
+                -1 -> {
+                    emit(Resource.Error("Проверьте подключение к интернету", errorCode = -1))
+                }
+
+                else -> {
+                    emit(Resource.Error("Ошибка сервера", errorCode = 0))
+                }
             }
         }
     }

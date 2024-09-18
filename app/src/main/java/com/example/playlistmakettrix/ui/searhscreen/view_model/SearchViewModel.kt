@@ -1,17 +1,18 @@
 package com.example.playlistmakettrix.ui.searhscreen.view_model
 
 import android.app.Application
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.playlistmakettrix.data.searchhistory.impl.SearchHistoryRepositoryImpl
 import com.example.playlistmakettrix.domain.search.SearchInteractor
 import com.example.playlistmakettrix.domain.search.models.Track
 import com.example.playlistmakettrix.domain.searchhistory.SearchHistoryInteractor
 import com.example.playlistmakettrix.ui.searhscreen.TrackState
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class SearchViewModel(
     application: Application,
@@ -25,8 +26,8 @@ class SearchViewModel(
     fun observeState(): LiveData<TrackState> = loadingLiveData
 
     private var latestSearchText: String? = null
-    private var isClickedAllowed = true
-    private val handler = Handler(Looper.getMainLooper())
+
+    private var searchJob: Job? = null
 
     init {
         historyList = getSearchHistory()
@@ -63,55 +64,39 @@ class SearchViewModel(
         if (expression.isNotEmpty()) {
             loadingLiveData.postValue(TrackState.Loading)
 
-            handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
-            searchInteractor.searchTracks(
-                expression = expression,
-                consumer = object : SearchInteractor.TracksConsumer {
-                    override fun consume(foundTracks: List<Track>?, errorMessage: String?, errorCode: Int?) {
-                        if (errorCode == 200) {
-                            loadingLiveData.postValue(TrackState.Content(foundTracks!!))
+            viewModelScope.launch {
+                searchInteractor
+                    .searchTracks(expression)
+                    .collect { pair ->
+                        val tracks = mutableListOf<Track>()
+                        if (pair.first != null) {
+                            tracks.addAll(pair.first!!)
+                        }
+
+                        if (pair.second != null && pair.third != null) {
+                            loadingLiveData.postValue(TrackState.Error(errorMessage = pair.third!!, errorCode = pair.second!!))
                         } else {
-                            loadingLiveData.postValue(TrackState.Error(errorCode = errorCode!!, errorMessage = errorMessage!!))
+                            loadingLiveData.postValue(TrackState.Content(tracks))
                         }
                     }
-                }
-            )
+            }
         }
-    }
-
-
-    fun clickDebounce(): Boolean {
-        val current = isClickedAllowed
-        if (isClickedAllowed) {
-            isClickedAllowed = false
-            handler.postDelayed({ isClickedAllowed = true }, CLICK_DEBOUNCE_DELAY)
-        }
-        return current
     }
 
     fun searchDebounce(changedText: String) {
         if (latestSearchText == changedText) return
 
-        this.latestSearchText = changedText
+        latestSearchText = changedText
 
-        handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
-        val searchRunnable = Runnable { search(changedText) }
-        val postTime = SystemClock.uptimeMillis() + SEARCH_DEBOUNCE_DELAY
-        handler.postAtTime(
-            searchRunnable,
-            SEARCH_REQUEST_TOKEN,
-            postTime,
-        )
-    }
-
-    //очистка handler от задач
-    override fun onCleared() {
-        handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(SEARCH_DEBOUNCE_DELAY)
+            search(changedText)
+        }
     }
 
     companion object {
-        private val SEARCH_REQUEST_TOKEN = Any()
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
-        private const val CLICK_DEBOUNCE_DELAY = 1000L
+
     }
 }

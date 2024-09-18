@@ -2,18 +2,19 @@ package com.example.playlistmakettrix.domain.search.impl
 
 import com.example.playlistmakettrix.domain.search.SearchInteractor
 import com.example.playlistmakettrix.domain.search.SearchRepository
+import com.example.playlistmakettrix.domain.search.models.Track
 import com.example.playlistmakettrix.util.Resource
-import java.util.concurrent.Executors
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class SearchInteractorImpl (private val repository: SearchRepository) : SearchInteractor {
 
-    private val executor = Executors.newCachedThreadPool()
 
-    override fun searchTracks ( expression: String, consumer: SearchInteractor.TracksConsumer) {
-        executor.execute {
-            when (val resource = repository.searchTracks(expression)){
-                is Resource.Success -> { consumer.consume(resource.data, null, errorCode = 200) }
-                is Resource.Error -> {consumer.consume(null, resource.message, errorCode = resource.errorCode)}
+    override fun searchTracks ( expression: String): Flow<Triple<List<Track>?, Int?, String?>> {
+        return repository.searchTracks(expression).map { result ->
+            when (result){
+                is Resource.Success -> { Triple(result.data, null, null)}
+                is Resource.Error -> {Triple(null, result. errorCode, result.message)}
             }
         }
     }

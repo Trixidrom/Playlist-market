@@ -15,7 +15,7 @@ class LibraryFragment : Fragment() {
     private lateinit var binding: FragmentLibraryBinding
     private lateinit var tabLayoutMediator: TabLayoutMediator
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentLibraryBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -32,9 +32,8 @@ class LibraryFragment : Fragment() {
         tabLayoutMediator.attach()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         tabLayoutMediator.detach()
     }
-
 }
