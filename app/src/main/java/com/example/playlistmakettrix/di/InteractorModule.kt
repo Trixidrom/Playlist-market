@@ -1,5 +1,7 @@
 package com.example.playlistmakettrix.di
 
+import com.example.playlistmakettrix.domain.favorites.FavoritesInteractor
+import com.example.playlistmakettrix.domain.favorites.FavoritesInteractorImpl
 import com.example.playlistmakettrix.domain.search.SearchInteractor
 import com.example.playlistmakettrix.domain.search.impl.SearchInteractorImpl
 import com.example.playlistmakettrix.domain.searchhistory.SearchHistoryInteractor
@@ -26,6 +28,12 @@ val interactorModule = module {
     factory <ThemeSwitchInteractor>{
         ThemeSwitchInteractorImpl(
             themeSwitchRepository = get()
+        )
+    }
+
+    factory <FavoritesInteractor> {
+        FavoritesInteractorImpl(
+            favoritesRepository = get()
         )
     }
 }

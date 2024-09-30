@@ -16,7 +16,7 @@ class LibraryViewPagerAdapter(fragmentManager: FragmentManager, fragmentLifecycl
         return when (position) {
             0 -> FavoritesFragment()
             1 -> PlaylistsFragment.newInstance(123)
-            else -> PlaylistsFragment()
+            else -> throw Exception("Unknown tab")
         }
     }
 }

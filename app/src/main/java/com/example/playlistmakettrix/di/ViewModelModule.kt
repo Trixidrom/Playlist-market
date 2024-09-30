@@ -25,7 +25,9 @@ val viewModelModule = module {
     }
 
     viewModel<FavoritesViewModel> {
-        FavoritesViewModel()
+        FavoritesViewModel(
+            favoritesInteractor = get()
+        )
     }
 
     viewModel<PlaylistsViewModel> {
@@ -33,6 +35,8 @@ val viewModelModule = module {
     }
 
     viewModel {
-        PlayerViewModel()
+        PlayerViewModel(
+            favoritesInteractor = get()
+        )
     }
 }

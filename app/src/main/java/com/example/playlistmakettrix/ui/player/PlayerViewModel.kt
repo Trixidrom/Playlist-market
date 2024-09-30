@@ -5,18 +5,25 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.playlistmakettrix.domain.favorites.FavoritesInteractor
+import com.example.playlistmakettrix.domain.search.models.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class PlayerViewModel : ViewModel() {
+class PlayerViewModel(
+    private val favoritesInteractor: FavoritesInteractor
+) : ViewModel() {
     private var mediaPlayer: MediaPlayer = MediaPlayer()
     private var timerJob: Job? = null
 
     private val playerState = MutableLiveData<PlayerState>(PlayerState.Default())
     fun observePlayerState(): LiveData<PlayerState> = playerState
+
+    private val favoritesState = MutableLiveData<FavoritesState>(FavoritesState.Progress())
+    fun observeFavoritesState(): LiveData<FavoritesState> = favoritesState
 
     companion object {
         private const val UPDATE_TIMER_DELAY = 300L
@@ -90,5 +97,41 @@ class PlayerViewModel : ViewModel() {
 
     private fun getCurrentPlayerPosition(): String {
         return SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition) ?: "00:00"
+    }
+
+    fun favoritesIsExists(trackId: Long) {
+        viewModelScope.launch {
+            favoritesState.postValue(FavoritesState.Progress())
+            favoritesState.postValue(FavoritesState.Success(favoritesInteractor.trackIsExists(trackId)))
+        }
+    }
+
+    fun clickToFavoritesButton(track: Track) {
+        when (favoritesState.value){
+            is FavoritesState.Progress -> return
+            is FavoritesState.Success -> {
+                if ((favoritesState.value as FavoritesState.Success).isExists) {
+                    removeFromFavorites(track.trackId)
+                } else {
+                    addToFavorites(track)
+                }
+            }
+            null -> return
+        }
+    }
+
+    private fun removeFromFavorites(trackId: Long) {
+        viewModelScope.launch {
+            favoritesState.postValue(FavoritesState.Progress())
+            favoritesInteractor.removeTrackFromFavorites(trackId)
+            favoritesState.postValue(FavoritesState.Success(false))
+        }
+    }
+    private fun addToFavorites(track: Track) {
+        viewModelScope.launch {
+            favoritesState.postValue(FavoritesState.Progress())
+            favoritesInteractor.addTrackToFavorites(track)
+            favoritesState.postValue(FavoritesState.Success(true))
+        }
     }
 }

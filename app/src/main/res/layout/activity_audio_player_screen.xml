@@ -82,7 +82,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageButton
-        android:id="@+id/addToPlaylistButton"
+        android:id="@+id/addToFavoriteButton"
         android:layout_width="@dimen/circle_button_size"
         android:layout_height="@dimen/circle_button_size"
         android:src="@drawable/ic_favorite_off"
@@ -90,10 +90,10 @@
         app:layout_constraintTop_toTopOf="@id/playButton"
         app:layout_constraintBottom_toBottomOf="@id/playButton"
         app:layout_constraintEnd_toStartOf="@id/right_guideline"
-        android:contentDescription="playlist"/>
+        android:contentDescription="favorite"/>
 
     <ImageButton
-        android:id="@+id/addToFavoriteButton"
+        android:id="@+id/addToPlaylistButton"
         android:layout_width="@dimen/circle_button_size"
         android:layout_height="@dimen/circle_button_size"
         android:src="@drawable/ic_add"
@@ -101,7 +101,7 @@
         app:layout_constraintTop_toTopOf="@id/playButton"
         app:layout_constraintBottom_toBottomOf="@id/playButton"
         app:layout_constraintStart_toEndOf="@id/left_guideline"
-        android:contentDescription="favorite"/>
+        android:contentDescription="playlist"/>
 
     <TextView
         android:id="@+id/timer_text_view"

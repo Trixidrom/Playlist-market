@@ -31,7 +31,7 @@
             android:layout_marginBottom="24dp"
             android:layout_weight="1"
             tools:itemCount="5"
-            tools:listitem="@layout/search_list_item" />
+            tools:listitem="@layout/track_list_item" />
 
         <Button
             android:id="@+id/clear_search_history_button"

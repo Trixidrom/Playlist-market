@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmakettrix.R
-import com.example.playlistmakettrix.databinding.SearchListItemBinding
+import com.example.playlistmakettrix.databinding.TrackListItemBinding
 import com.example.playlistmakettrix.domain.search.models.Track
 
 
@@ -17,7 +17,7 @@ class TrackSearchListAdapter (var trackList: List<Track>, private val itemOnClic
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackSearchListViewHolder {
-        val itemBinding = SearchListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val itemBinding = TrackListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return TrackSearchListViewHolder(itemBinding)
     }
 
@@ -32,7 +32,7 @@ class TrackSearchListAdapter (var trackList: List<Track>, private val itemOnClic
         }
     }
 
-    class TrackSearchListViewHolder(private val itemBinding: SearchListItemBinding) : RecyclerView.ViewHolder(itemBinding.root){
+    class TrackSearchListViewHolder(private val itemBinding: TrackListItemBinding) : RecyclerView.ViewHolder(itemBinding.root){
 
         fun bind(item : Track){
             itemBinding.trackName.text = item.trackName

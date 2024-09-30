@@ -2,7 +2,9 @@ package com.example.playlistmakettrix.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.room.Room
 import com.example.playlistmakettrix.GeneralConstants
+import com.example.playlistmakettrix.data.db.AppDatabase
 import com.example.playlistmakettrix.data.network.NetworkClient
 import com.example.playlistmakettrix.data.network.NetworkClientImpl
 import com.example.playlistmakettrix.data.settings.LocalStorage
@@ -44,6 +46,12 @@ val dataModule = module {
         .build()
 
         NetworkClientImpl (context = get(), retrofit = retrofit)
+    }
+
+    //room
+    single {
+        Room.databaseBuilder(androidContext(), AppDatabase::class.java, "database.db")
+            .build()
     }
 
     //externalNavigator

@@ -22,7 +22,7 @@
             android:id="@+id/track_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:listitem="@layout/search_list_item" />
+            tools:listitem="@layout/track_list_item" />
 
         <include
             android:id="@+id/empty_playlists"

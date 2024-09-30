@@ -34,6 +34,8 @@ class AudioPlayerScreenActivity : AppCompatActivity() {
             playerViewModel.onPlayButtonClicked()
         }
 
+        playerViewModel.favoritesIsExists(track.trackId)
+
         playerViewModel.observePlayerState().observe(this) { playerState ->
             binding.playButton.isEnabled = playerState.isPlayButtonEnabled
             binding.timerTextView.text = playerState.progress
@@ -51,6 +53,31 @@ class AudioPlayerScreenActivity : AppCompatActivity() {
                     binding.playButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.play_button_ready))
                 }
             }
+        }
+
+        playerViewModel.observeFavoritesState().observe(this) { favoritesState ->
+            when (favoritesState) {
+                is FavoritesState.Progress -> {
+                    binding.addToFavoriteButton.isClickable = false
+                }
+
+                is FavoritesState.Success -> {
+                    binding.addToFavoriteButton.isClickable = true
+                    binding.addToFavoriteButton.setImageDrawable(
+                        AppCompatResources.getDrawable(this,
+                            if (favoritesState.isExists) {
+                                R.drawable.ic_favorite_on
+                            } else {
+                                R.drawable.ic_favorite_off
+                            }
+                        )
+                    )
+                }
+            }
+        }
+
+        binding.addToFavoriteButton.setOnClickListener {
+            playerViewModel.clickToFavoritesButton(track)
         }
     }
 
